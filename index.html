@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>De Passagem | Mobilidade Compartilhada</title>
+  <meta name="description" content="De Passagem: mobilidade compartilhada, tarifa justa sem dinâmica, Área Escolar e transporte territorial inteligente." />
+  <style>
+    :root{--navy:#071b33;--blue:#1E3A8A;--green:#10B981;--gold:#F59E0B;--bg:#f4f7fb;--text:#0f172a;--muted:#64748b;--card:#fff;}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}.hero{background:linear-gradient(135deg,#06152a,#12366b 55%,#0f513e);color:#fff;border-radius:28px;padding:34px;box-shadow:0 20px 50px rgba(2,6,23,.18);position:relative;overflow:hidden}.hero:after{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;background:rgba(245,158,11,.22);border-radius:50%;filter:blur(20px)}
+    .brand{display:flex;gap:14px;align-items:center}.logo{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#fff,#fbbf24);display:grid;place-items:center;color:#071b33;font-weight:900;font-size:34px;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+    h1{font-size:clamp(36px,5vw,64px);margin:16px 0 8px;letter-spacing:-.04em}.tag{font-size:18px;color:#dbeafe;max-width:760px;line-height:1.55}.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);padding:9px 13px;border-radius:999px;font-weight:700;font-size:13px}.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px;margin-top:22px}.card{background:var(--card);border-radius:24px;padding:22px;box-shadow:0 14px 35px rgba(15,23,42,.08);border:1px solid #e5e7eb}.col4{grid-column:span 4}.col6{grid-column:span 6}.col8{grid-column:span 8}.col12{grid-column:span 12}@media(max-width:850px){.col4,.col6,.col8{grid-column:span 12}.wrap{padding:14px}.hero{padding:24px}}
+    .section-title{font-size:24px;margin:0 0 10px}.muted{color:var(--muted);line-height:1.55}.fare{font-size:36px;font-weight:900;color:var(--green);margin:8px 0}.row{display:flex;gap:12px;align-items:center;justify-content:space-between;border-top:1px solid #e5e7eb;padding:14px 0}.row:first-child{border-top:0}.pill{display:inline-block;padding:7px 11px;border-radius:999px;background:#ecfdf5;color:#047857;font-size:12px;font-weight:800}.pill.blue{background:#eff6ff;color:#1d4ed8}.pill.gold{background:#fffbeb;color:#b45309}.input{width:100%;padding:12px 14px;border:1px solid #cbd5e1;border-radius:14px;font-size:16px}.btn{border:0;border-radius:16px;padding:14px 18px;font-weight:800;background:var(--green);color:#fff;cursor:pointer}.btn.secondary{background:#0f172a}.list{display:grid;gap:12px;margin-top:12px}.item{padding:14px;border-radius:16px;background:#f8fafc;border:1px solid #e5e7eb}.footer{margin:26px 0;color:#64748b;text-align:center;font-size:13px}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero">
+      <div class="brand"><div class="logo">D</div><div><strong>DE PASSAGEM</strong><br><span style="color:#bbf7d0">Mobilidade territorial inteligente</span></div></div>
+      <h1>Transporte justo, compartilhado e sem dinâmica.</h1>
+      <p class="tag">Um produto com duas áreas: mobilidade urbana/turística e Área Escolar. Começando simples, seguro e pronto para validação em campo.</p>
+      <div class="badges"><span class="badge">Sem tarifa dinâmica</span><span class="badge">Corrida compartilhada</span><span class="badge">Área Escolar</span><span class="badge">Até 7 lugares</span><span class="badge">Taxa plataforma 10%</span></div>
+    </section>
+    <section class="grid">
+      <div class="card col4"><h2 class="section-title">Simulador rápido</h2><p class="muted">Informe distância e passageiros. O valor é demonstrativo e arredondado.</p><label>Distância km</label><input id="km" class="input" type="number" value="7" min="1"><br><br><label>Passageiros</label><input id="pax" class="input" type="number" value="4" min="1" max="7"><br><br><button class="btn" onclick="calc()">Calcular</button><div class="fare" id="fare">R$ 7,50</div><span class="pill" id="mode">Compartilhada</span></div>
+      <div class="card col8"><h2 class="section-title">Como funciona</h2><div class="row"><div><b>Passageiro informa ocupação</b><p class="muted">A quantidade de passageiros é obrigatória para organizar lugares, conforto e tarifa.</p></div><span class="pill blue">1 a 7</span></div><div class="row"><div><b>Tarifa previsível</b><p class="muted">Sem dinâmica. Ajustes por cidade, CEP, distância, perfil operacional e política local.</p></div><span class="pill gold">Justa</span></div><div class="row"><div><b>Compartilhada inteligente</b><p class="muted">Agrupa pessoas na mesma direção, com rotas e ocupação controladas.</p></div><span class="pill">Popular</span></div></div>
+      <div class="card col6"><h2 class="section-title">Mobilidade</h2><div class="list"><div class="item">Bairro ↔ Centro</div><div class="item">Rotas de trabalho</div><div class="item">Viagens e turismo em Foz</div><div class="item">Retorno protegido do motorista</div></div></div>
+      <div class="card col6"><h2 class="section-title">Área Escolar</h2><div class="list"><div class="item">Aluno aguarda dentro da escola</div><div class="item">Motorista homologada e próxima</div><div class="item">PIN de embarque</div><div class="item">Pais recebem notificações</div></div></div>
+      <div class="card col12"><h2 class="section-title">Status do MVP</h2><p class="muted">Esta é uma versão estática inicial para Cloudflare Pages. A próxima etapa conecta API, banco de dados, login, saldo/carteira, GPS e notificações reais.</p></div>
+    </section>
+    <p class="footer">De Passagem — você não é apenas passageiro, você é parte do caminho.</p>
+  </main>
+<script>
+function brl(v){return v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}
+function roundFare(v){let step=v<=7?.1:v<=15?.5:1; return Math.round(v/step)*step}
+function calc(){let km=Number(document.getElementById('km').value||1);let pax=Math.min(7,Math.max(1,Number(document.getElementById('pax').value||1)));let shared=pax>=4;let base=shared?4.6+Math.max(0,km-3)*.65:Math.max(12,km*2.8+5);let fare=roundFare(base);document.getElementById('fare').textContent=brl(fare);document.getElementById('mode').textContent=shared?'Compartilhada popular':'Solo / parcial'} calc();
+</script>
+</body>
+</html>
