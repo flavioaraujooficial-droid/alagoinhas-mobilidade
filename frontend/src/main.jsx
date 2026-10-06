@@ -26,35 +26,57 @@ const ROTAS_ALAGOINHAS_INICIAL = [
 
 function App() {
   const [abaAtiva, setAbaAtiva] = useState('passageiro');
-  const [idRotaSelecionada, setIdRotaSelecionada] = useState(13); // Padrão: Feira de Santana (Ligeirinho)
-  const [modalidade, setModalidade] = useState('coletivo'); // 'coletivo' ou 'exclusivo'
+  const [idRotaSelecionada, setIdRotaSelecionada] = useState(13); // Feira de Santana
+  const [modalidade, setModalidade] = useState('coletivo');
   
-  // PARÂMETROS CONFIGURÁVEIS DA PLATAFORMA
-  const [taxaPlataforma, setTaxaPlataforma] = useState(10); // % de retenção
-  const [reservaMinimaPassageiro, setReservaMinimaPassageiro] = useState(20.00); // Saldo mínimo obrigatório
+  // AUTENTICAÇÃO ADM
+  const [autenticadoAdm, setAutenticadoAdm] = useState(false);
+  const [senhaInput, setSenhaInput] = useState('');
+
+  // PARÂMETROS OPERACIONAIS CONFIGURÁVEIS (ADM)
+  const [taxaPlataforma, setTaxaPlataforma] = useState(10); 
+  const [reservaMinimaPassageiro, setReservaMinimaPassageiro] = useState(20.00); 
   
-  // Carteira Simulada do Passageiro
+  // SIMULAÇÃO DA CARTEIRA DO PASSAGEIRO
   const [saldoCarteiraPassageiro, setSaldoCarteiraPassageiro] = useState(25.00); 
 
+  // NOA ROTA (ADM)
   const [rotas, setRotas] = useState(ROTAS_ALAGOINHAS_INICIAL);
+  const [novaRota, setNovaRota] = useState({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro' });
+
   const rotaSelecionada = rotas.find(r => r.id === Number(idRotaSelecionada)) || rotas[0];
 
-  // Cálculos da Corrida
+  // CÁLCULOS
   const tarifaBaseCalculada = modalidade === 'coletivo' ? rotaSelecionada.tarifaColetivo : rotaSelecionada.tarifaExclusivo;
-  
-  // Se for Ligeirinho (4 vagas coletivas)
   const eLigeirinhoColetivo = modalidade === 'coletivo' && rotaSelecionada.vagasObrigatorias === 4;
   const faturamentoTotalCarro = eLigeirinhoColetivo ? (rotaSelecionada.tarifaColetivo * 4) : tarifaBaseCalculada;
 
   const valorDescontoPlataforma = (faturamentoTotalCarro * taxaPlataforma) / 100;
   const valorLiquidoMotorista = faturamentoTotalCarro - valorDescontoPlataforma;
 
-  // Validação de Segurança do Passageiro
   const passageiroAprovado = saldoCarteiraPassageiro >= reservaMinimaPassageiro;
 
   const atualizarTarifa = (id, campo, novoValor) => {
     const val = parseFloat(novoValor) || 0;
     setRotas(rotas.map(r => r.id === id ? { ...r, [campo]: val } : r));
+  };
+
+  const loginAdm = (e) => {
+    e.preventDefault();
+    if (senhaInput === '1234') {
+      setAutenticadoAdm(true);
+    } else {
+      alert('Senha incorreta! Use: 1234');
+    }
+  };
+
+  const adicionarNovaRota = (e) => {
+    e.preventDefault();
+    if (!novaRota.nome) return;
+    const novoid = rotas.length > 0 ? Math.max(...rotas.map(r => r.id)) + 1 : 1;
+    setRotas([...rotas, { ...novaRota, id: novoid, vagasObrigatorias: 1 }]);
+    setNovaRota({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro' });
+    alert('Nova rota adicionada com sucesso!');
   };
 
   return (
@@ -64,28 +86,27 @@ function App() {
       <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
-          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Proteção Anti-Calote ao Motorista & Ligeirinho Express</p>
+          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Sistema Integrado de Corridas & Controle Anti-Calote</p>
         </div>
         <span style={{ backgroundColor: '#0284c7', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-          Sistema Protegido
+          Versão 2.0 (Com Painel ADM)
         </span>
       </header>
 
-      {/* Navegação */}
+      {/* Navegação de Abas */}
       <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
         <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'passageiro' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          Solicitar Corrida / Trajeto
+          📱 Solicitar Corrida
         </button>
-        <button onClick={() => setAbaAtiva('gestao')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'gestao' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'gestao' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          Painel Gestor (Regras & Tarifas)
+        <button onClick={() => setAbaAtiva('adm')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'adm' ? '#eab308' : '#1e293b', color: abaAtiva === 'adm' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          ⚙️ Painel ADM / Gestão
         </button>
       </nav>
 
-      {/* Conteúdo Passageiro & Simulação */}
+      {/* 1. ABA PASSAGEIRO / SIMULADOR */}
       {abaAtiva === 'passageiro' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           
-          {/* Coluna 1: Solicitação */}
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
             <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Escolha de Rota & Embarque</h3>
             
@@ -98,7 +119,6 @@ function App() {
               </select>
             </div>
 
-            {/* Alternador Coletivo vs Exclusivo */}
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE VIAGEM</label>
               <div style={{ display: 'flex', gap: '10px' }}>
@@ -115,7 +135,7 @@ function App() {
               </div>
             </div>
 
-            {/* Trava Anti-Calote no Passageiro */}
+            {/* Trava Anti-Calote */}
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: passageiroAprovado ? '4px solid #22c55e' : '4px solid #ef4444' }}>
               <h4 style={{ margin: '0 0 5px 0', color: '#f8fafc' }}>Status da Carteira do Passageiro</h4>
               <p style={{ margin: '3px 0', fontSize: '13px', color: '#cbd5e1' }}>
@@ -124,16 +144,15 @@ function App() {
               
               {passageiroAprovado ? (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#064e3b', color: '#6ee7b7', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                  ✓ SOLICITAÇÃO AUTORIZADA: Saldo de garantia verificado. O motorista tem recebimento 100% assegurado!
+                  ✓ SOLICITAÇÃO AUTORIZADA: Saldo de garantia verificado. Pagamento ao motorista 100% garantido!
                 </div>
               ) : (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#7f1d1d', color: '#fca5a5', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                  ⚠️ BLOQUEADO: Saldo inferior à reserva de segurança de R$ {reservaMinimaPassageiro.toFixed(2)}. Adicione saldo em Pix para liberar a chamada.
+                  ⚠️ BLOQUEADO: Saldo inferior à reserva de segurança de R$ {reservaMinimaPassageiro.toFixed(2)}. Adicione saldo para liberar a chamada.
                 </div>
               )}
             </div>
 
-            {/* Simulação de Alteração de Saldo do Passageiro */}
             <div style={{ marginTop: '15px', fontSize: '12px', color: '#94a3b8' }}>
               <span>Simular saldo do passageiro: </span>
               <button onClick={() => setSaldoCarteiraPassageiro(25.00)} style={{ padding: '2px 8px', marginLeft: '5px', borderRadius: '4px', border: '1px solid #334155', backgroundColor: '#1e293b', color: '#22c55e', cursor: 'pointer' }}>R$ 25 (Com Saldo)</button>
@@ -142,24 +161,23 @@ function App() {
 
           </div>
 
-          {/* Coluna 2: Visão do Motorista & Ligeirinho */}
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Detalhamento Financeiro do Condutor</h3>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Visão do Motorista</h3>
             
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
               <p style={{ margin: '0 0 5px 0', color: '#38bdf8', fontWeight: 'bold' }}>{rotaSelecionada.nome}</p>
-              <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Embarque Flexível:</strong> {rotaSelecionada.pontoEmbarque}</p>
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Ponto de Embarque:</strong> {rotaSelecionada.pontoEmbarque}</p>
               
               {eLigeirinhoColetivo && (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#1e293b', border: '1px solid #38bdf8', borderRadius: '6px', fontSize: '12px', color: '#38bdf8' }}>
-                  🚘 <strong>Modo Ligeirinho (4 Vagas):</strong> R$ {rotaSelecionada.tarifaColetivo.toFixed(2)} por assento. O motorista inicia ao completar as 4 vagas (R$ 160,00 total).
+                  🚘 <strong>Modo Ligeirinho (4 Vagas):</strong> R$ {rotaSelecionada.tarifaColetivo.toFixed(2)} por vaga (R$ 160,00 total do carro).
                 </div>
               )}
             </div>
 
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px' }}>
-                <span>Faturamento Bruto do Carro:</span>
+                <span>Faturamento Bruto:</span>
                 <strong style={{ color: '#fff' }}>R$ {faturamentoTotalCarro.toFixed(2)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px', color: '#ef4444' }}>
@@ -168,7 +186,7 @@ function App() {
               </div>
               <hr style={{ borderColor: '#334155', margin: '10px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: '#22c55e' }}>
-                <span>Ganhos Líquidos Garantidos:</span>
+                <span>Líquido do Condutor:</span>
                 <strong>R$ {valorLiquidoMotorista.toFixed(2)}</strong>
               </div>
             </div>
@@ -177,91 +195,128 @@ function App() {
         </div>
       )}
 
-      {/* Painel Gestor / Ajustes Gerais */}
-      {abaAtiva === 'gestao' && (
-        <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
-          <h3 style={{ marginTop: 0, color: '#38bdf8' }}>Configurações de Segurança e Tarifário Aberto</h3>
-          
-          {/* Ajuste de Taxas e Saldo de Reserva */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px', marginBottom: '25px' }}>
-            
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
-              <label style={{ display: 'block', color: '#38bdf8', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
-                Taxa de Retenção do App: {taxaPlataforma}%
-              </label>
-              <input 
-                type="range" 
-                min="0" 
-                max="20" 
-                step="0.5" 
-                value={taxaPlataforma} 
-                onChange={(e) => setTaxaPlataforma(Number(e.target.value))}
-                style={{ width: '100%', cursor: 'pointer' }} 
-              />
-            </div>
-
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
-              <label style={{ display: 'block', color: '#eab308', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
-                Reserva Mínima Obrigatória (Passageiro)
-              </label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ color: '#94a3b8' }}>R$</span>
+      {/* 2. ABA PAINEL ADM */}
+      {abaAtiva === 'adm' && (
+        <div>
+          {!autenticadoAdm ? (
+            <div style={{ backgroundColor: '#1e293b', padding: '30px', borderRadius: '12px', maxWidth: '400px', margin: '0 auto', textAlign: 'center', border: '1px solid #334155' }}>
+              <h3 style={{ color: '#eab308', marginTop: 0 }}>Área Restrita ADM</h3>
+              <p style={{ fontSize: '14px', color: '#94a3b8' }}>Digite a senha para gerenciar taxas, travas e valores:</p>
+              <form onSubmit={loginAdm}>
                 <input 
-                  type="number" 
-                  step="5.00" 
-                  value={reservaMinimaPassageiro} 
-                  onChange={(e) => setReservaMinimaPassageiro(parseFloat(e.target.value) || 0)}
-                  style={{ width: '100%', padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }} 
+                  type="password" 
+                  placeholder="Senha ADM (padrão: 1234)" 
+                  value={senhaInput} 
+                  onChange={(e) => setSenhaInput(e.target.value)}
+                  style={{ width: '80%', padding: '10px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: '#0f172a', color: '#fff', marginBottom: '15px', textAlign: 'center' }}
                 />
-              </div>
-              <span style={{ fontSize: '11px', color: '#94a3b8', display: 'block', marginTop: '5px' }}>
-                * Passageiros com saldo inferior a este valor não conseguem acionar o motorista.
-              </span>
+                <br />
+                <button type="submit" style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', backgroundColor: '#eab308', color: '#0f172a', fontWeight: 'bold', cursor: 'pointer' }}>
+                  Entrar no Painel
+                </button>
+              </form>
             </div>
+          ) : (
+            <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h3 style={{ margin: 0, color: '#eab308' }}>Painel do Administrador</h3>
+                <button onClick={() => setAutenticadoAdm(false)} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', cursor: 'pointer' }}>
+                  Sair do ADM
+                </button>
+              </div>
 
-          </div>
+              {/* Ajuste de Regras Gerais */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px', marginBottom: '25px' }}>
+                
+                <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
+                  <label style={{ display: 'block', color: '#38bdf8', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
+                    Taxa do App (% Retenção): {taxaPlataforma}%
+                  </label>
+                  <input 
+                    type="range" 
+                    min="0" 
+                    max="20" 
+                    step="0.5" 
+                    value={taxaPlataforma} 
+                    onChange={(e) => setTaxaPlataforma(Number(e.target.value))}
+                    style={{ width: '100%', cursor: 'pointer' }} 
+                  />
+                </div>
 
-          {/* Tabela de Edição de Valores */}
-          <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Tabela Aberta de Valores da Região</h4>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-              <thead>
-                <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
-                  <th style={{ padding: '10px' }}>Rota / Trajeto</th>
-                  <th style={{ padding: '10px' }}>Vaga / Assento (R$)</th>
-                  <th style={{ padding: '10px' }}>Carro Fechado (R$)</th>
-                  <th style={{ padding: '10px' }}>Ponto / Trajeto</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rotas.map((r) => (
-                  <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
-                    <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
-                    <td style={{ padding: '10px' }}>
-                      <input 
-                        type="number" 
-                        step="0.50" 
-                        value={r.tarifaColetivo} 
-                        onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)}
-                        style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#22c55e', border: '1px solid #475569', fontWeight: 'bold' }} 
-                      />
-                    </td>
-                    <td style={{ padding: '10px' }}>
-                      <input 
-                        type="number" 
-                        step="1.00" 
-                        value={r.tarifaExclusivo} 
-                        onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)}
-                        style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
-                      />
-                    </td>
-                    <td style={{ padding: '10px', fontSize: '12px', color: '#94a3b8' }}>{r.pontoEmbarque}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
+                  <label style={{ display: 'block', color: '#eab308', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
+                    Reserva Mínima Anti-Calote (Passageiro)
+                  </label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ color: '#94a3b8' }}>R$</span>
+                    <input 
+                      type="number" 
+                      step="5.00" 
+                      value={reservaMinimaPassageiro} 
+                      onChange={(e) => setReservaMinimaPassageiro(parseFloat(e.target.value) || 0)}
+                      style={{ width: '100%', padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }} 
+                    />
+                  </div>
+                </div>
 
+              </div>
+
+              {/* Formulário para Inserir Nova Rota */}
+              <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '25px', border: '1px solid #334155' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>Adicionar Nova Rota ao Sistema</h4>
+                <form onSubmit={adicionarNovaRota} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                  <input type="text" placeholder="Nome da Rota" value={novaRota.nome} onChange={(e) => setNovaRota({ ...novaRota, nome: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="text" placeholder="Ponto de Embarque" value={novaRota.pontoEmbarque} onChange={(e) => setNovaRota({ ...novaRota, pontoEmbarque: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="number" step="0.5" placeholder="Tarifa Vaga (R$)" value={novaRota.tarifaColetivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaColetivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="number" step="1" placeholder="Carro Fechado (R$)" value={novaRota.tarifaExclusivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaExclusivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <button type="submit" style={{ padding: '8px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#22c55e', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>+ Cadastrar</button>
+                </form>
+              </div>
+
+              {/* Tabela Editável de Tarifas */}
+              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas Existentes</h4>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
+                      <th style={{ padding: '10px' }}>Rota</th>
+                      <th style={{ padding: '10px' }}>Vaga (R$)</th>
+                      <th style={{ padding: '10px' }}>Carro Fechado (R$)</th>
+                      <th style={{ padding: '10px' }}>Ponto de Embarque</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rotas.map((r) => (
+                      <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
+                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
+                        <td style={{ padding: '10px' }}>
+                          <input 
+                            type="number" 
+                            step="0.50" 
+                            value={r.tarifaColetivo} 
+                            onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)}
+                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#22c55e', border: '1px solid #475569', fontWeight: 'bold' }} 
+                          />
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <input 
+                            type="number" 
+                            step="1.00" 
+                            value={r.tarifaExclusivo} 
+                            onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)}
+                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
+                          />
+                        </td>
+                        <td style={{ padding: '10px', fontSize: '12px', color: '#94a3b8' }}>{r.pontoEmbarque}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          )}
         </div>
       )}
 
