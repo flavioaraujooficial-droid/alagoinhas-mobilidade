@@ -26,7 +26,7 @@ function App() {
   const [modalidade, setModalidade] = useState('coletivo');
   const [qtdPassageirosPonto, setQtdPassageirosPonto] = useState(1);
   
-  // TRAVA GEOGRÁFICA DE TESTE (APENAS URBANOS DE ALAGOINHAS)
+  // TRAVA GEOGRÁFICA (APENAS URBANOS DE ALAGOINHAS)
   const [modoApenasUrbanoAlagoinhas, setModoApenasUrbanoAlagoinhas] = useState(true);
 
   // MODO "INDO PARA CASA" (CONDUTOR)
@@ -42,7 +42,7 @@ function App() {
   const [agendamentoAtivo, setAgendamentoAtivo] = useState(true);
   const [alertaEmergenciaRelancado, setAlertaEmergenciaRelancado] = useState(false);
 
-  // AUDITORIA ANTI-FRAUDE (VIAGEM POR FORA)
+  // AUDITORIA ANTI-FRAUDE
   const [mostrarPesquisaCancelamento, setMostrarPesquisaCancelamento] = useState(true);
   const [respostaFraude, setRespostaFraude] = useState(null);
 
@@ -108,7 +108,7 @@ function App() {
   };
 
   const compartilharViagemWhatsApp = () => {
-    const texto = encodeURIComponent(`🛡️ Estou em trânsito com a Alagoinhas Mobilidade!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
+    const texto = encodeURIComponent(`🛡️ Estou em trânsito com a DE PASSAGEM!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
   };
 
@@ -131,34 +131,38 @@ function App() {
   return (
     <div style={{ fontFamily: 'sans-serif', backgroundColor: '#0f172a', color: '#f8fafc', minHeight: '100vh', padding: '20px' }}>
       
-      {/* Cabeçalho */}
-      <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+      {/* Cabeçalho de Passagem */}
+      <header style={{ borderBottom: '2px solid #f97316', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
-          <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
-          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Foco Urbano & Teste Local (Atacarejo / Petrolata / Zani Carajás)</p>
+          <h1 style={{ color: '#f97316', margin: 0, fontSize: '28px', fontWeight: '900', letterSpacing: '1px' }}>
+            DE PASSAGEM
+          </h1>
+          <p style={{ color: '#cbd5e1', margin: '3px 0 0 0', fontSize: '13px', fontStyle: 'italic' }}>
+            Mobilidade que conecta. Respeito que transforma.
+          </p>
         </div>
 
         {modoApenasUrbanoAlagoinhas ? (
-          <span style={{ backgroundColor: '#0284c7', color: '#fff', border: '1px solid #0369a1', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            📍 Trava Ativa: Modo Alagoinhas Urbano (Intermunicipais Ocultas)
+          <span style={{ backgroundColor: '#ea580c', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+            📍 Operação Alagoinhas
           </span>
         ) : (
-          <span style={{ backgroundColor: '#475569', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            🌐 Operação Regional Expandida
+          <span style={{ backgroundColor: '#0284c7', color: '#fff', padding: '6px 14px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+            🌐 Conexão Regional
           </span>
         )}
       </header>
 
       {/* Navegação de Abas */}
       <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
-        <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'passageiro' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+        <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#f97316' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           📱 Passageiro
         </button>
-        <button onClick={() => setAbaAtiva('motorista_painel')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'motorista_painel' ? '#22c55e' : '#1e293b', color: abaAtiva === 'motorista_painel' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          🚘 Painel do Condutor & Rota de Retorno
+        <button onClick={() => setAbaAtiva('motorista_painel')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'motorista_painel' ? '#22c55e' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          🚘 Painel do Condutor & Indo para Casa
         </button>
         <button onClick={() => setAbaAtiva('adm')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'adm' ? '#eab308' : '#1e293b', color: abaAtiva === 'adm' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          ⚙️ Painel ADM & Trava de Escopo
+          ⚙️ Painel ADM
         </button>
       </nav>
 
@@ -215,7 +219,7 @@ function App() {
             
             <div style={{ marginBottom: '15px' }}>
               <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
-                DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'FOCO URBANO / ALAGOINHAS' : 'TODOS OS DESTINOS'})
+                DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'OPERAÇÃO ALAGOINHAS' : 'TODOS OS DESTINOS'})
               </label>
               <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
                 {rotasExibidas.map(r => (
@@ -229,7 +233,7 @@ function App() {
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button 
                   onClick={() => setModalidade('coletivo')}
-                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #38bdf8', backgroundColor: modalidade === 'coletivo' ? '#0284c7' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #f97316', backgroundColor: modalidade === 'coletivo' ? '#ea580c' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
                   👥 Assento / Vaga
                 </button>
                 <button 
@@ -242,8 +246,8 @@ function App() {
 
             {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
             {modalidade === 'coletivo' && (
-              <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #38bdf8' }}>
-                <label style={{ display: 'block', color: '#38bdf8', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
+              <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #f97316' }}>
+                <label style={{ display: 'block', color: '#f97316', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
                   Quantas pessoas vão embarcar nesta parada?
                 </label>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -251,7 +255,7 @@ function App() {
                     <button 
                       key={num}
                       onClick={() => setQtdPassageirosPonto(num)}
-                      style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#0284c7' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                      style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#ea580c' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
                       {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
                     </button>
                   ))}
@@ -260,8 +264,8 @@ function App() {
             )}
 
             {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #38bdf8' }}>
-              <h4 style={{ margin: '0 0 5px 0', color: '#38bdf8' }}>🔑 Seu Código PIN de Embarque</h4>
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
               <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
                 {codigoPinEmbarque}
               </div>
@@ -296,7 +300,7 @@ function App() {
             <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Detalhamento Financeiro</h3>
             
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
-              <p style={{ margin: '0 0 5px 0', color: '#38bdf8', fontWeight: 'bold' }}>{rotaSelecionada.nome}</p>
+              <p style={{ margin: '0 0 5px 0', color: '#f97316', fontWeight: 'bold' }}>{rotaSelecionada.nome}</p>
               <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Ponto de Coleta:</strong> {rotaSelecionada.pontoEmbarque}</p>
               <p style={{ margin: '3px 0', fontSize: '13px', color: '#cbd5e1' }}>👥 <strong>Embarque:</strong> {modalidade === 'coletivo' ? `${qtdPassageirosPonto} pessoa(s)` : 'Carro Exclusivo'}</p>
             </div>
@@ -345,7 +349,7 @@ function App() {
 
             {modoIndoParaCasa && (
               <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                <label style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
+                <label style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
                 <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
                   <option value="Estêvão">Estêvão</option>
                   <option value="Boa União">Boa União</option>
@@ -390,7 +394,7 @@ function App() {
 
           {/* AGENDAMENTO E EMERGÊNCIA */}
           <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #334155' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>📅 Agendamento da Madrugada (Atacarejo / Petrolata / Zani Carajás):</h4>
+            <h4 style={{ margin: '0 0 10px 0', color: '#f97316' }}>📅 Agendamento da Madrugada (Atacarejo / Petrolata / Zani Carajás):</h4>
             
             {agendamentoAtivo ? (
               <div>
@@ -438,26 +442,26 @@ function App() {
           ) : (
             <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, color: '#eab308' }}>Painel ADM & Gestão de Escopo</h3>
+                <h3 style={{ margin: 0, color: '#eab308' }}>Painel ADM DE PASSAGEM</h3>
                 <button onClick={() => setAutenticadoAdm(false)} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', cursor: 'pointer' }}>
                   Sair
                 </button>
               </div>
 
               {/* TRAVA GEOGRÁFICA (MODO ALAGOINHAS URBAN) */}
-              <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #38bdf8' }}>
+              <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #f97316' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <h4 style={{ margin: 0, color: '#38bdf8' }}>📍 Trava Geográfica: Modo Alagoinhas Urbano</h4>
+                    <h4 style={{ margin: 0, color: '#f97316' }}>📍 Trava Geográfica: Operação Alagoinhas</h4>
                     <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
-                      Bloqueia/Oculta linhas intermunicipais e restringe a operação para testes exaustivos no perímetro de Alagoinhas.
+                      Bloqueia/Oculta linhas intermunicipais para testes e validação exaustiva no perímetro urbano de Alagoinhas.
                     </p>
                   </div>
 
                   <button 
                     onClick={() => setModoApenasUrbanoAlagoinhas(!modoApenasUrbanoAlagoinhas)}
-                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoApenasUrbanoAlagoinhas ? '#0284c7' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                    {modoApenasUrbanoAlagoinhas ? '✓ TRAVA URBANA ATIVA' : '🔓 EXPANDIR PARA REGIONAL'}
+                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoApenasUrbanoAlagoinhas ? '#ea580c' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                    {modoApenasUrbanoAlagoinhas ? '✓ OPERAÇÃO ALAGOINHAS ATIVA' : '🔓 EXPANDIR REGIONAL'}
                   </button>
                 </div>
               </div>
@@ -479,7 +483,7 @@ function App() {
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
+                    <tr style={{ borderBottom: '2px solid #334155', color: '#f97316' }}>
                       <th style={{ padding: '10px' }}>Rota</th>
                       <th style={{ padding: '10px' }}>Vaga (R$)</th>
                       <th style={{ padding: '10px' }}>Carro Exclusivo (R$)</th>
