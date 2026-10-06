@@ -373,43 +373,67 @@ function App() {
         </div>
       )}
 
-      {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
-      {abaAtiva === 'motorista_painel' && (
-        <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-          <h3 style={{ marginTop: 0, color: '#22c55e' }}>Painel do Condutor</h3>
+     {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
+{abaAtiva === 'motorista_painel' && (
+  <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+    <h3 style={{ marginTop: 0, color: '#22c55e' }}>🚘 Painel do Condutor</h3>
 
-          {/* MODO "INDO PARA CASA" */}
-          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-              <div>
-                <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Modo "Indo para Casa" (Rota Final de Retorno)</h4>
-                <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
-                  {modoIndoParaCasa ? `Buscando passageiros no seu trajeto para: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
-                </p>
-              </div>
+    {/* MODO "INDO PARA CASA" */}
+    <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+        <div>
+          <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Modo "Indo para Casa" (Rota Final de Retorno)</h4>
+          <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
+            {modoIndoParaCasa ? `Buscando passageiros no seu trajeto para: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
+          </p>
+        </div>
 
-              <button 
-                onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
-                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                {modoIndoParaCasa ? '✓ MODO RETORNO ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
-              </button>
-            </div>
+        <button 
+          onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
+          style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          {modoIndoParaCasa ? '✓ MODO RETORNO ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
+        </button>
+      </div>
 
-            {modoIndoParaCasa && (
-              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-                <label style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
-                <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
-                  <option value="Estêvão">Estêvão</option>
-                  <option value="Boa União">Boa União</option>
-                  <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
-                  <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
-                  <option value="Aramari">Aramari</option>
-                  <option value="Pedrão">Pedrão</option>
-                  <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
-                </select>
-              </div>
-            )}
+      {modoIndoParaCasa && (
+        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+          <label style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
+          <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
+            <option value="Estêvão">Estêvão</option>
+            <option value="Boa União">Boa União</option>
+            <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
+            <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
+            <option value="Aramari">Aramari</option>
+            <option value="Pedrão">Pedrão</option>
+            <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
+          </select>
+        </div>
+      )}
+    </div>
+
+    {/* LISTA DE SOLICITAÇÕES PENDENTES EM TEMPO REAL */}
+    <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #3b82f6' }}>
+      <h4 style={{ margin: '0 0 15px 0', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        📡 Solicitações de Viagens em Alagoinhas (Tempo Real)
+      </h4>
+
+      <div style={{ backgroundColor: '#1e293b', padding: '15px', borderRadius: '8px', border: '1px solid #334155', marginBottom: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+          <div>
+            <span style={{ fontSize: '11px', backgroundColor: '#22c55e', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>CARRO EXCLUSIVO</span>
+            <h5 style={{ margin: '8px 0 4px 0', fontSize: '16px', color: '#f8fafc' }}>Corrida Agendada / Solicitação Direta</h5>
+            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>Aguardando confirmação do motorista parceiro</p>
           </div>
+          <button 
+            onClick={() => alert("✅ Corrida aceita com sucesso! Inicie o deslocamento para o ponto de embarque.")}
+            style={{ padding: '10px 18px', backgroundColor: '#22c55e', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+            ACEITAR CORRIDA
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
           {/* VALIDAÇÃO DE PIN NO EMBARQUE */}
           <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
