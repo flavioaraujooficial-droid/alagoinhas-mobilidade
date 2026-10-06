@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import ReactDOM from 'react-dom/client';
 
 // Tabela base de Linhas e Rotas do Hub de Alagoinhas
 const ROTAS_ALAGOINHAS_INICIAL = [
@@ -89,7 +88,7 @@ export function App() {
   };
 
   const compartilharViagemWhatsApp = () => {
-    const texto = encodeURIComponent(`🛡️ Estou em trânsito com a DE PASSAGEM!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
+    const texto = encodeURIComponent(`🛡️️ Estou em trânsito com a DE PASSAGEM!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
   };
 
@@ -428,4 +427,6 @@ export function App() {
     </div>
   );
 }
+
+export default App;
 
