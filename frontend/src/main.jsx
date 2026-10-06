@@ -176,39 +176,32 @@ function App() {
         </div>
       )}
 
-      {/* BANNER DE AUDITORIA DE CANCELAMENTO PÓS-VIAGEM */}
-      {mostrarPesquisaCancelamento && (
-        <div style={{ backgroundColor: '#1e1b4b', border: '2px solid #6366f1', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Checagem de Segurança Pós-Viagem</h4>
-              <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
-                Sua corrida de madrugada para <strong>Santa Terezinha</strong> foi cancelada. O motorista realizou a viagem por fora do app?
-              </p>
-            </div>
-            <button onClick={() => setMostrarPesquisaCancelamento(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
-          </div>
+     {/* CHECAGEM E BÔNUS PÓS-VIAGEM DESATIVADOS PARA EVITAR FRAUDES
+{mostrarPesquisaCancelamento && (
+  <div style={{ backgroundColor: '#1e1b4b', border: '2px solid #6366f1', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div>
+        <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Checagem de Segurança Pós-Viagem</h4>
+        <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
+          Sua corrida de madrugada para <strong>Santa Terezinha</strong> foi cancelada. O motorista realizou a viagem por fora do app?
+        </p>
+      </div>
+      <button onClick={() => setMostrarPesquisaCancelamento(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+    </div>
 
-          {!respostaFraude ? (
-            <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              <button 
-                onClick={() => responderPesquisaFraude('sim_por_fora')}
-                style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
-                🚨 Sim, ele fez por fora (+ R$ 5,00 Bônus)
-              </button>
-              <button 
-                onClick={() => responderPesquisaFraude('nao_realizada')}
-                style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: '#0f172a', color: '#fff', fontSize: '12px', cursor: 'pointer' }}>
-                Não, a viagem realmente não aconteceu
-              </button>
-            </div>
-          ) : (
-            <div style={{ marginTop: '10px', color: '#22c55e', fontSize: '12px', fontWeight: 'bold' }}>
-              ✓ Bônus creditado na carteira!
-            </div>
-          )}
-        </div>
-      )}
+    {!respostaFraude && (
+      <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
+        <button onClick={() => responderPesquisaFraude('sim_por_fora')} style={{ padding: '8px 14px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+          Sim, fomos por fora
+        </button>
+        <button onClick={() => responderPesquisaFraude('nao_cancelada_real')} style={{ padding: '8px 14px', backgroundColor: '#334155', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
+          Não, a viagem não aconteceu
+        </button>
+      </div>
+    )}
+  </div>
+)}
+*/}
 
     {/* 1. ABA PASSAGEIRO */}
 {abaAtiva === 'passageiro' && (
