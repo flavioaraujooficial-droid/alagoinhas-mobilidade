@@ -5,44 +5,46 @@ import './styles.css';
 // Tabela base de Linhas e Rotas do Hub de Alagoinhas
 const ROTAS_ALAGOINHAS_INICIAL = [
   // --- EIXOS RODOVIÁRIOS / LIGEIRINHO EXPRESS ---
-  { id: 13, nome: "Alagoinhas ↔ Feira de Santana (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 40.00, tarifaExclusivo: 160.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4 },
-  { id: 14, nome: "Alagoinhas ↔ Salvador (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 50.00, tarifaExclusivo: 200.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4 },
+  { id: 13, nome: "Alagoinhas ↔ Feira de Santana (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 40.00, tarifaExclusivo: 160.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 30.00 },
+  { id: 14, nome: "Alagoinhas ↔ Salvador (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 50.00, tarifaExclusivo: 200.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 50.00 },
 
   // --- URBANOS & BAIRROS ---
-  { id: 1, nome: "Mangalô / Santa Terezinha ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.00, tarifaExclusivo: 25.00, pontoEmbarque: "Qualquer Ponto Central / Bairro", vagasObrigatorias: 1 },
-  { id: 2, nome: "Alagoinhas Velha / Praça Kennedy ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Praça Kennedy / Centro", vagasObrigatorias: 1 },
+  { id: 1, nome: "Mangalô / Santa Terezinha ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.00, tarifaExclusivo: 25.00, pontoEmbarque: "Qualquer Ponto Central / Bairro", vagasObrigatorias: 1, taxaRetornoVazio: 0.00 },
+  { id: 2, nome: "Alagoinhas Velha / Praça Kennedy ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Praça Kennedy / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 0.00 },
 
   // --- DISTRITAIS RURAIS ---
-  { id: 5, nome: "Fazenda Catuzinho ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Transbordo / Centro", vagasObrigatorias: 1 },
-  { id: 6, nome: "Boa União ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.50, tarifaExclusivo: 30.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1 },
-  { id: 7, nome: "Estêvão ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.00, tarifaExclusivo: 28.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1 },
-  { id: 8, nome: "Riacho da Guia / Calu ↔ Transbordo", categoria: "Distrital", tipo: "Distrito / Rural", tarifaColetivo: 7.00, tarifaExclusivo: 45.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1 },
+  { id: 5, nome: "Fazenda Catuzinho ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Transbordo / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 8.00 },
+  { id: 6, nome: "Boa União ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.50, tarifaExclusivo: 30.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 10.00 },
+  { id: 7, nome: "Estêvão ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.00, tarifaExclusivo: 28.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 8.00 },
+  { id: 8, nome: "Riacho da Guia / Calu ↔ Transbordo", categoria: "Distrital", tipo: "Distrito / Rural", tarifaColetivo: 7.00, tarifaExclusivo: 45.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 15.00 },
 
   // --- INTERMUNICIPAIS REGIONAIS ---
-  { id: 9, nome: "Pedrão ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 9.00, tarifaExclusivo: 60.00, pontoEmbarque: "Viaduto / Centro", vagasObrigatorias: 1 },
-  { id: 10, nome: "Aramari ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 6.00, tarifaExclusivo: 35.00, pontoEmbarque: "Terminal Central", vagasObrigatorias: 1 },
-  { id: 11, nome: "Catu / Pojuca ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 8.50, tarifaExclusivo: 55.00, pontoEmbarque: "Transbordo / Rodoviária", vagasObrigatorias: 1 }
+  { id: 9, nome: "Pedrão ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 9.00, tarifaExclusivo: 60.00, pontoEmbarque: "Viaduto / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 15.00 },
+  { id: 10, nome: "Aramari ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 6.00, tarifaExclusivo: 35.00, pontoEmbarque: "Terminal Central", vagasObrigatorias: 1, taxaRetornoVazio: 10.00 },
+  { id: 11, nome: "Catu / Pojuca ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 8.50, tarifaExclusivo: 55.00, pontoEmbarque: "Transbordo / Rodoviária", vagasObrigatorias: 1, taxaRetornoVazio: 15.00 }
 ];
 
 function App() {
   const [abaAtiva, setAbaAtiva] = useState('passageiro');
-  const [idRotaSelecionada, setIdRotaSelecionada] = useState(13); // Feira de Santana
+  const [idRotaSelecionada, setIdRotaSelecionada] = useState(13);
   const [modalidade, setModalidade] = useState('coletivo');
   
+  // RECURSO "INDO PARA CASA" (MODO DESTINO CONDUTOR)
+  const [modoIndoParaCasa, setModoIndoParaCasa] = useState(false);
+  const [destinoCasa, setDestinoCasa] = useState('Estêvão');
+
   // AUTENTICAÇÃO ADM
   const [autenticadoAdm, setAutenticadoAdm] = useState(false);
   const [senhaInput, setSenhaInput] = useState('');
 
-  // PARÂMETROS OPERACIONAIS CONFIGURÁVEIS (ADM)
+  // PARÂMETROS OPERACIONAIS
   const [taxaPlataforma, setTaxaPlataforma] = useState(10); 
   const [reservaMinimaPassageiro, setReservaMinimaPassageiro] = useState(20.00); 
-  
-  // SIMULAÇÃO DA CARTEIRA DO PASSAGEIRO
   const [saldoCarteiraPassageiro, setSaldoCarteiraPassageiro] = useState(25.00); 
+  const [incluirGarantiaRetorno, setIncluirGarantiaRetorno] = useState(false);
 
-  // NOA ROTA (ADM)
   const [rotas, setRotas] = useState(ROTAS_ALAGOINHAS_INICIAL);
-  const [novaRota, setNovaRota] = useState({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro' });
+  const [novaRota, setNovaRota] = useState({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro', taxaRetornoVazio: 10 });
 
   const rotaSelecionada = rotas.find(r => r.id === Number(idRotaSelecionada)) || rotas[0];
 
@@ -51,8 +53,11 @@ function App() {
   const eLigeirinhoColetivo = modalidade === 'coletivo' && rotaSelecionada.vagasObrigatorias === 4;
   const faturamentoTotalCarro = eLigeirinhoColetivo ? (rotaSelecionada.tarifaColetivo * 4) : tarifaBaseCalculada;
 
-  const valorDescontoPlataforma = (faturamentoTotalCarro * taxaPlataforma) / 100;
-  const valorLiquidoMotorista = faturamentoTotalCarro - valorDescontoPlataforma;
+  const adicionalRetorno = (modalidade === 'exclusivo' && incluirGarantiaRetorno) ? rotaSelecionada.taxaRetornoVazio : 0;
+  const faturamentoBrutoComRetorno = faturamentoTotalCarro + adicionalRetorno;
+
+  const valorDescontoPlataforma = (faturamentoBrutoComRetorno * taxaPlataforma) / 100;
+  const valorLiquidoMotorista = faturamentoBrutoComRetorno - valorDescontoPlataforma;
 
   const passageiroAprovado = saldoCarteiraPassageiro >= reservaMinimaPassageiro;
 
@@ -75,7 +80,7 @@ function App() {
     if (!novaRota.nome) return;
     const novoid = rotas.length > 0 ? Math.max(...rotas.map(r => r.id)) + 1 : 1;
     setRotas([...rotas, { ...novaRota, id: novoid, vagasObrigatorias: 1 }]);
-    setNovaRota({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro' });
+    setNovaRota({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro', taxaRetornoVazio: 10 });
     alert('Nova rota adicionada com sucesso!');
   };
 
@@ -86,17 +91,20 @@ function App() {
       <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
-          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Sistema Integrado de Corridas & Controle Anti-Calote</p>
+          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Gestão de Frota, Trava Anti-Calote & Modo "Indo Para Casa"</p>
         </div>
         <span style={{ backgroundColor: '#0284c7', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-          Versão 2.0 (Com Painel ADM)
+          Operação Alagoinhas
         </span>
       </header>
 
-      {/* Navegação de Abas */}
+      {/* Navegação */}
       <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
         <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'passageiro' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           📱 Solicitar Corrida
+        </button>
+        <button onClick={() => setAbaAtiva('motorista_painel')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'motorista_painel' ? '#22c55e' : '#1e293b', color: abaAtiva === 'motorista_painel' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          🚘 Painel do Condutor / Modo Destino
         </button>
         <button onClick={() => setAbaAtiva('adm')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'adm' ? '#eab308' : '#1e293b', color: abaAtiva === 'adm' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           ⚙️ Painel ADM / Gestão
@@ -144,40 +152,28 @@ function App() {
               
               {passageiroAprovado ? (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#064e3b', color: '#6ee7b7', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                  ✓ SOLICITAÇÃO AUTORIZADA: Saldo de garantia verificado. Pagamento ao motorista 100% garantido!
+                  ✓ SOLICITAÇÃO AUTORIZADA: Saldo de garantia verificado.
                 </div>
               ) : (
                 <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#7f1d1d', color: '#fca5a5', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
-                  ⚠️ BLOQUEADO: Saldo inferior à reserva de segurança de R$ {reservaMinimaPassageiro.toFixed(2)}. Adicione saldo para liberar a chamada.
+                  ⚠️ BLOQUEADO: Saldo inferior à reserva de R$ {reservaMinimaPassageiro.toFixed(2)}.
                 </div>
               )}
-            </div>
-
-            <div style={{ marginTop: '15px', fontSize: '12px', color: '#94a3b8' }}>
-              <span>Simular saldo do passageiro: </span>
-              <button onClick={() => setSaldoCarteiraPassageiro(25.00)} style={{ padding: '2px 8px', marginLeft: '5px', borderRadius: '4px', border: '1px solid #334155', backgroundColor: '#1e293b', color: '#22c55e', cursor: 'pointer' }}>R$ 25 (Com Saldo)</button>
-              <button onClick={() => setSaldoCarteiraPassageiro(5.00)} style={{ padding: '2px 8px', marginLeft: '5px', borderRadius: '4px', border: '1px solid #334155', backgroundColor: '#1e293b', color: '#ef4444', cursor: 'pointer' }}>R$ 5 (Sem Saldo)</button>
             </div>
 
           </div>
 
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Visão do Motorista</h3>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Visão Financeira do Condutor</h3>
             
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
               <p style={{ margin: '0 0 5px 0', color: '#38bdf8', fontWeight: 'bold' }}>{rotaSelecionada.nome}</p>
-              <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Ponto de Embarque:</strong> {rotaSelecionada.pontoEmbarque}</p>
-              
-              {eLigeirinhoColetivo && (
-                <div style={{ marginTop: '10px', padding: '8px', backgroundColor: '#1e293b', border: '1px solid #38bdf8', borderRadius: '6px', fontSize: '12px', color: '#38bdf8' }}>
-                  🚘 <strong>Modo Ligeirinho (4 Vagas):</strong> R$ {rotaSelecionada.tarifaColetivo.toFixed(2)} por vaga (R$ 160,00 total do carro).
-                </div>
-              )}
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Embarque:</strong> {rotaSelecionada.pontoEmbarque}</p>
             </div>
 
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px' }}>
-                <span>Faturamento Bruto:</span>
+                <span>Tarifa Base da Viagem:</span>
                 <strong style={{ color: '#fff' }}>R$ {faturamentoTotalCarro.toFixed(2)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px', color: '#ef4444' }}>
@@ -186,7 +182,7 @@ function App() {
               </div>
               <hr style={{ borderColor: '#334155', margin: '10px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: '#22c55e' }}>
-                <span>Líquido do Condutor:</span>
+                <span>Líquido Garantido ao Condutor:</span>
                 <strong>R$ {valorLiquidoMotorista.toFixed(2)}</strong>
               </div>
             </div>
@@ -195,13 +191,63 @@ function App() {
         </div>
       )}
 
-      {/* 2. ABA PAINEL ADM */}
+      {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
+      {abaAtiva === 'motorista_painel' && (
+        <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+          <h3 style={{ marginTop: 0, color: '#22c55e' }}>Painel do Condutor & Rota de Retorno</h3>
+          <p style={{ color: '#94a3b8', fontSize: '14px' }}>
+            Ative o <strong>Modo "Indo para Casa"</strong> no encerramento do seu turno para o aplicativo alocar corridas no seu trajeto de volta.
+          </p>
+
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Status da Rota Final de Retorno</h4>
+                <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
+                  {modoIndoParaCasa ? `Buscando passageiros com destino a: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                {modoIndoParaCasa ? '✓ MODO "INDO PARA CASA" ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
+              </button>
+            </div>
+
+            {modoIndoParaCasa && (
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 'bold' }}>SELEICONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
+                <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
+                  <option value="Estêvão">Estêvão</option>
+                  <option value="Boa União">Boa União</option>
+                  <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
+                  <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
+                  <option value="Aramari">Aramari</option>
+                  <option value="Pedrão">Pedrão</option>
+                  <option value="Catu / Pojuca">Catu / Pojuca</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: '4px solid #22c55e' }}>
+            <h4 style={{ margin: '0 0 5px 0', color: '#22c55e' }}>Como funciona a otimização de retorno:</h4>
+            <ul style={{ margin: '5px 0 0 0', paddingLeft: '20px', color: '#cbd5e1', fontSize: '13px', lineHeight: '1.6' }}>
+              <li>O sistema canaliza passageiros do Centro de Alagoinhas que pretendem desembarcar no seu caminho de volta.</li>
+              <li>Evita que o condutor rode de vaga vazia ou absorva o custo do combustível do retorno para casa.</li>
+              <li>Faturamento direto creditado na carteira com verificação do saldo de garantia prévio.</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* 3. ABA PAINEL ADM */}
       {abaAtiva === 'adm' && (
         <div>
           {!autenticadoAdm ? (
             <div style={{ backgroundColor: '#1e293b', padding: '30px', borderRadius: '12px', maxWidth: '400px', margin: '0 auto', textAlign: 'center', border: '1px solid #334155' }}>
               <h3 style={{ color: '#eab308', marginTop: 0 }}>Área Restrita ADM</h3>
-              <p style={{ fontSize: '14px', color: '#94a3b8' }}>Digite a senha para gerenciar taxas, travas e valores:</p>
               <form onSubmit={loginAdm}>
                 <input 
                   type="password" 
@@ -218,7 +264,6 @@ function App() {
             </div>
           ) : (
             <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
-              
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h3 style={{ margin: 0, color: '#eab308' }}>Painel do Administrador</h3>
                 <button onClick={() => setAutenticadoAdm(false)} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', cursor: 'pointer' }}>
@@ -226,56 +271,8 @@ function App() {
                 </button>
               </div>
 
-              {/* Ajuste de Regras Gerais */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '15px', marginBottom: '25px' }}>
-                
-                <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
-                  <label style={{ display: 'block', color: '#38bdf8', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
-                    Taxa do App (% Retenção): {taxaPlataforma}%
-                  </label>
-                  <input 
-                    type="range" 
-                    min="0" 
-                    max="20" 
-                    step="0.5" 
-                    value={taxaPlataforma} 
-                    onChange={(e) => setTaxaPlataforma(Number(e.target.value))}
-                    style={{ width: '100%', cursor: 'pointer' }} 
-                  />
-                </div>
-
-                <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
-                  <label style={{ display: 'block', color: '#eab308', fontWeight: 'bold', fontSize: '14px', marginBottom: '8px' }}>
-                    Reserva Mínima Anti-Calote (Passageiro)
-                  </label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ color: '#94a3b8' }}>R$</span>
-                    <input 
-                      type="number" 
-                      step="5.00" 
-                      value={reservaMinimaPassageiro} 
-                      onChange={(e) => setReservaMinimaPassageiro(parseFloat(e.target.value) || 0)}
-                      style={{ width: '100%', padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }} 
-                    />
-                  </div>
-                </div>
-
-              </div>
-
-              {/* Formulário para Inserir Nova Rota */}
-              <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '25px', border: '1px solid #334155' }}>
-                <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>Adicionar Nova Rota ao Sistema</h4>
-                <form onSubmit={adicionarNovaRota} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
-                  <input type="text" placeholder="Nome da Rota" value={novaRota.nome} onChange={(e) => setNovaRota({ ...novaRota, nome: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="text" placeholder="Ponto de Embarque" value={novaRota.pontoEmbarque} onChange={(e) => setNovaRota({ ...novaRota, pontoEmbarque: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="number" step="0.5" placeholder="Tarifa Vaga (R$)" value={novaRota.tarifaColetivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaColetivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="number" step="1" placeholder="Carro Fechado (R$)" value={novaRota.tarifaExclusivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaExclusivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <button type="submit" style={{ padding: '8px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#22c55e', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>+ Cadastrar</button>
-                </form>
-              </div>
-
-              {/* Tabela Editável de Tarifas */}
-              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas Existentes</h4>
+              {/* Tabela Editável */}
+              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas & Parâmetros Regionais</h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
@@ -283,7 +280,6 @@ function App() {
                       <th style={{ padding: '10px' }}>Rota</th>
                       <th style={{ padding: '10px' }}>Vaga (R$)</th>
                       <th style={{ padding: '10px' }}>Carro Fechado (R$)</th>
-                      <th style={{ padding: '10px' }}>Ponto de Embarque</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -308,7 +304,6 @@ function App() {
                             style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
                           />
                         </td>
-                        <td style={{ padding: '10px', fontSize: '12px', color: '#94a3b8' }}>{r.pontoEmbarque}</td>
                       </tr>
                     ))}
                   </tbody>
