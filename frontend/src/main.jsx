@@ -210,71 +210,93 @@ function App() {
         </div>
       )}
 
-      {/* 1. ABA PASSAGEIRO */}
-      {abaAtiva === 'passageiro' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-          
-          <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
-            
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
-                DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'OPERAÇÃO ALAGOINHAS' : 'TODOS OS DESTINOS'})
-              </label>
-              <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
-                {rotasExibidas.map(r => (
-                  <option key={r.id} value={r.id}>{r.nome}</option>
-                ))}
-              </select>
-            </div>
+    {/* 1. ABA PASSAGEIRO */}
+{abaAtiva === 'passageiro' && (
+  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+    
+    <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+      <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
+      
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
+          DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'OPERAÇÃO ALAGOINHAS' : 'TODOS OS DESTINOS'})
+        </label>
+        <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
+          {rotasExibidas.map(r => (
+            <option key={r.id} value={r.id}>{r.nome}</option>
+          ))}
+        </select>
+      </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button 
-                  onClick={() => setModalidade('coletivo')}
-                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #f97316', backgroundColor: modalidade === 'coletivo' ? '#ea580c' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                  👥 Assento / Vaga
-                </button>
-                <button 
-                  onClick={() => setModalidade('exclusivo')}
-                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                  🚗 Carro Exclusivo
-                </button>
-              </div>
-            </div>
+      <div style={{ marginBottom: '15px' }}>
+        <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button 
+            onClick={() => setModalidade('coletivo')}
+            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #f97316', backgroundColor: modalidade === 'coletivo' ? '#ea580c' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+            👥 Assento / Vaga
+          </button>
+          <button 
+            onClick={() => setModalidade('exclusivo')}
+            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+            🚗 Carro Exclusivo
+          </button>
+        </div>
+      </div>
 
-            {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
-            {modalidade === 'coletivo' && (
-              <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #f97316' }}>
-                <label style={{ display: 'block', color: '#f97316', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
-                  Quantas pessoas vão embarcar nesta parada?
-                </label>
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  {[1, 2, 3, 4].map(num => (
-                    <button 
-                      key={num}
-                      onClick={() => setQtdPassageirosPonto(num)}
-                      style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#ea580c' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                      {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
-              <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
-              <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
-                {codigoPinEmbarque}
-              </div>
+      {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
+      {modalidade === 'coletivo' && (
+        <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #f97316' }}>
+          <label style={{ display: 'block', color: '#f97316', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
+            Quantas pessoas vão embarcar nesta parada?
+          </label>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            {[1, 2, 3, 4].map(num => (
               <button 
-                onClick={compartilharViagemWhatsApp}
-                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-                📲 Compartilhar Rota em Tempo Real (WhatsApp)
+                key={num}
+                onClick={() => setQtdPassageirosPonto(num)}
+                style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#ea580c' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
               </button>
-            </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 🚀 BOTÃO PRINCIPAL DE CONFIRMAÇÃO DO PEDIDO DE VIAGEM */}
+      <button 
+        onClick={() => {
+          // Coloque aqui a função para acionar o pedido ou agendamento
+          alert("Solicitação enviada com sucesso!");
+        }}
+        style={{ 
+          width: '100%', 
+          padding: '14px', 
+          borderRadius: '8px', 
+          border: 'none', 
+          backgroundColor: '#22c55e', 
+          color: '#fff', 
+          fontSize: '16px',
+          fontWeight: 'bold', 
+          cursor: 'pointer', 
+          marginBottom: '15px',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+        }}>
+        ✅ CONFIRMAR SOLICITAÇÃO DE VIAGEM
+      </button>
+
+      {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
+      <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
+        <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
+        <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
+          {codigoPinEmbarque}
+        </div>
+        <button 
+          onClick={compartilharViagemWhatsApp}
+          style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+          📲 Compartilhar Rota em Tempo Real (WhatsApp)
+        </button>
+      </div>
 
             {/* Trava Anti-Calote */}
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: passageiroAprovado ? '4px solid #22c55e' : '4px solid #ef4444' }}>
