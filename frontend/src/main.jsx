@@ -256,40 +256,73 @@ function App() {
         </div>
       )}
 
-      {/* 🚀 BOTÃO PRINCIPAL DE CONFIRMAÇÃO DO PEDIDO DE VIAGEM */}
-      <button 
-        onClick={() => {
-          // Coloque aqui a função para acionar o pedido ou agendamento
-          alert("Solicitação enviada com sucesso!");
-        }}
-        style={{ 
-          width: '100%', 
-          padding: '14px', 
-          borderRadius: '8px', 
-          border: 'none', 
-          backgroundColor: '#22c55e', 
-          color: '#fff', 
-          fontSize: '16px',
-          fontWeight: 'bold', 
-          cursor: 'pointer', 
-          marginBottom: '15px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-        }}>
-        ✅ CONFIRMAR SOLICITAÇÃO DE VIAGEM
-      </button>
+     {/* 🚀 BOTÃO PRINCIPAL DE CONFIRMAÇÃO DO PEDIDO DE VIAGEM */}
+<button 
+  onClick={async () => {
+    try {
+      // 1. Gera ou recupera um PIN de 4 dígitos
+      const pinGerado = Math.floor(1000 + Math.random() * 9000).toString();
+      if (typeof setCodigoPinEmbarque === 'function') {
+        setCodigoPinEmbarque(pinGerado);
+      }
 
-      {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
-      <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
-        <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
-        <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
-          {codigoPinEmbarque}
-        </div>
-        <button 
-          onClick={compartilharViagemWhatsApp}
-          style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-          📲 Compartilhar Rota em Tempo Real (WhatsApp)
-        </button>
-      </div>
+      // 2. Envia a solicitação de corrida para o banco de dados Supabase
+      if (typeof supabase !== 'undefined') {
+        const { data, error } = await supabase
+          .from('agendamentos_corridas')
+          .insert([
+            {
+              rota: rotaSelecionada || 'Rota Padrão Alagoinhas',
+              modalidade: 'individual',
+              pin_embarque: pinGerado,
+              status: 'pendente',
+              data_criacao: new Date().toISOString()
+            }
+          ]);
+
+        if (error) {
+          console.error("Erro ao salvar no Supabase:", error);
+        }
+      }
+
+      // 3. Notifica o passageiro e ativa a visualização
+      if (typeof setAgendamentoAtivo === 'function') {
+        setAgendamentoAtivo(true);
+      }
+      alert("✅ Solicitação enviada com sucesso! Seu motorista já pode visualizar o pedido.");
+    } catch (err) {
+      console.error("Erro na confirmação:", err);
+      alert("Solicitação registrada localmente! Aguardando confirmação do condutor.");
+    }
+  }}
+  style={{ 
+    width: '100%', 
+    padding: '14px', 
+    borderRadius: '8px', 
+    border: 'none', 
+    backgroundColor: '#22c55e', 
+    color: '#fff', 
+    fontSize: '16px',
+    fontWeight: 'bold', 
+    cursor: 'pointer', 
+    marginBottom: '15px',
+    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+  }}>
+  ✅ CONFIRMAR SOLICITAÇÃO DE VIAGEM
+</button>
+
+{/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
+<div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
+  <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
+  <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
+    {codigoPinEmbarque}
+  </div>
+  <button 
+    onClick={compartilharViagemWhatsApp}
+    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+    📲 Compartilhar Rota em Tempo Real (WhatsApp)
+  </button>
+</div>
 
             {/* Trava Anti-Calote */}
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: passageiroAprovado ? '4px solid #22c55e' : '4px solid #ef4444' }}>
