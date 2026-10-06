@@ -4,15 +4,18 @@ import './styles.css';
 
 // Tabela base de Linhas e Rotas do Hub de Alagoinhas
 const ROTAS_ALAGOINHAS_INICIAL = [
-  { id: 15, nome: "Rota Corujão Madrugada (Hospital / Santa Terezinha / Centro)", categoria: "Madrugada", tipo: "Van / Carro Compartilhado", tarifaColetivo: 7.00, tarifaExclusivo: 40.00, pontoEmbarque: "Pontos Agendados de Coleta", vagasObrigatorias: 4, taxaRetornoVazio: 0.00 },
-  { id: 13, nome: "Alagoinhas ↔ Feira de Santana (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 40.00, tarifaExclusivo: 160.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 30.00 },
-  { id: 14, nome: "Alagoinhas ↔ Salvador (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 50.00, tarifaExclusivo: 200.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 50.00 },
+  // --- URBANOS, BAIRROS E EMPRESAS (HABILITADOS NO MODO ALAGOINHAS URBAN) ---
+  { id: 15, nome: "Rota Corujão Madrugada (Hospital / Atacarejo / Petrolata / Zani Carajás)", categoria: "Urbana", tipo: "Van / Carro Compartilhado", tarifaColetivo: 7.00, tarifaExclusivo: 40.00, pontoEmbarque: "Pontos Agendados de Coleta", vagasObrigatorias: 4, taxaRetornoVazio: 0.00 },
   { id: 1, nome: "Mangalô / Santa Terezinha ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.00, tarifaExclusivo: 25.00, pontoEmbarque: "Qualquer Ponto Central / Bairro", vagasObrigatorias: 1, taxaRetornoVazio: 0.00 },
   { id: 2, nome: "Alagoinhas Velha / Praça Kennedy ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Praça Kennedy / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 0.00 },
   { id: 5, nome: "Fazenda Catuzinho ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, pontoEmbarque: "Transbordo / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 8.00 },
   { id: 6, nome: "Boa União ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.50, tarifaExclusivo: 30.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 10.00 },
   { id: 7, nome: "Estêvão ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.00, tarifaExclusivo: 28.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 8.00 },
   { id: 8, nome: "Riacho da Guia / Calu ↔ Transbordo", categoria: "Distrital", tipo: "Distrito / Rural", tarifaColetivo: 7.00, tarifaExclusivo: 45.00, pontoEmbarque: "Transbordo", vagasObrigatorias: 1, taxaRetornoVazio: 15.00 },
+
+  // --- INTERMUNICIPAIS / BLOQUEADOS TEMPORARIAMENTE NO TESTE DA CIDADE ---
+  { id: 13, nome: "Alagoinhas ↔ Feira de Santana (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 40.00, tarifaExclusivo: 160.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 30.00 },
+  { id: 14, nome: "Alagoinhas ↔ Salvador (Ligeirinho Express)", categoria: "Intermunicipal", tipo: "Carro Compartilhado (4 Vagas)", tarifaColetivo: 50.00, tarifaExclusivo: 200.00, pontoEmbarque: "Praça Rui Barbosa / Viaduto / Rodoviária", vagasObrigatorias: 4, taxaRetornoVazio: 50.00 },
   { id: 9, nome: "Pedrão ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 9.00, tarifaExclusivo: 60.00, pontoEmbarque: "Viaduto / Centro", vagasObrigatorias: 1, taxaRetornoVazio: 15.00 },
   { id: 10, nome: "Aramari ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 6.00, tarifaExclusivo: 35.00, pontoEmbarque: "Terminal Central", vagasObrigatorias: 1, taxaRetornoVazio: 10.00 }
 ];
@@ -23,8 +26,8 @@ function App() {
   const [modalidade, setModalidade] = useState('coletivo');
   const [qtdPassageirosPonto, setQtdPassageirosPonto] = useState(1);
   
-  // SOBERANIA NACIONAL
-  const [modoApenasNacional, setModoApenasNacional] = useState(true);
+  // TRAVA GEOGRÁFICA DE TESTE (APENAS URBANOS DE ALAGOINHAS)
+  const [modoApenasUrbanoAlagoinhas, setModoApenasUrbanoAlagoinhas] = useState(true);
 
   // MODO "INDO PARA CASA" (CONDUTOR)
   const [modoIndoParaCasa, setModoIndoParaCasa] = useState(false);
@@ -42,19 +45,25 @@ function App() {
   // AUDITORIA ANTI-FRAUDE (VIAGEM POR FORA)
   const [mostrarPesquisaCancelamento, setMostrarPesquisaCancelamento] = useState(true);
   const [respostaFraude, setRespostaFraude] = useState(null);
-  const [multaAplicada, setMultaAplicada] = useState(false);
 
   // AUTENTICAÇÃO ADM
   const [autenticadoAdm, setAutenticadoAdm] = useState(false);
   const [senhaInput, setSenhaInput] = useState('');
 
-  // PARÂMETROS OPERACIONAIS
+  // PARÂMETROS OPERACIONAIS E ROTAS
   const [taxaPlataforma, setTaxaPlataforma] = useState(10); 
   const [reservaMinimaPassageiro, setReservaMinimaPassageiro] = useState(20.00); 
   const [saldoCarteiraPassageiro, setSaldoCarteiraPassageiro] = useState(25.00); 
 
   const [rotas, setRotas] = useState(ROTAS_ALAGOINHAS_INICIAL);
-  const rotaSelecionada = rotas.find(r => r.id === Number(idRotaSelecionada)) || rotas[0];
+  const [novaRota, setNovaRota] = useState({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro', taxaRetornoVazio: 0 });
+
+  // FILTRAGEM DINÂMICA DE ROTAS COM BASE NA TRAVA GEOGRÁFICA
+  const rotasExibidas = modoApenasUrbanoAlagoinhas 
+    ? rotas.filter(r => r.categoria === "Urbana" || r.categoria === "Distrital" || r.categoria === "Madrugada")
+    : rotas;
+
+  const rotaSelecionada = rotasExibidas.find(r => r.id === Number(idRotaSelecionada)) || rotasExibidas[0];
 
   // CÁLCULOS
   const tarifaUnitaria = modalidade === 'coletivo' ? rotaSelecionada.tarifaColetivo : rotaSelecionada.tarifaExclusivo;
@@ -79,13 +88,22 @@ function App() {
     }
   };
 
+  const adicionarNovaRota = (e) => {
+    e.preventDefault();
+    if (!novaRota.nome) return;
+    const novoid = rotas.length > 0 ? Math.max(...rotas.map(r => r.id)) + 1 : 1;
+    setRotas([...rotas, { ...novaRota, id: novoid, vagasObrigatorias: 1 }]);
+    setNovaRota({ nome: '', categoria: 'Urbana', tarifaColetivo: 5, tarifaExclusivo: 30, pontoEmbarque: 'Centro', taxaRetornoVazio: 0 });
+    alert('Nova rota urbana/ponto de empresa adicionado com sucesso!');
+  };
+
   const validarPinMotorista = (e) => {
     e.preventDefault();
     if (pinDigitadoMotorista === codigoPinEmbarque) {
       setCorridaIniciadaSegura(true);
-      alert('✓ CÓDIGO CONFIRMADO! Passageiro e motorista autenticados com segurança. Boa viagem!');
+      alert('✓ CÓDIGO CONFIRMADO! Embarque autenticado com sucesso. Boa viagem!');
     } else {
-      alert('❌ CÓDIGO INCORRETO! Solicite o código PIN de 4 dígitos ao passageiro antes de iniciar.');
+      alert('❌ CÓDIGO INCORRETO! Solicite o PIN de 4 dígitos ao passageiro.');
     }
   };
 
@@ -97,15 +115,14 @@ function App() {
   const cancelarAgendamentoEmergencia = () => {
     setAgendamentoAtivo(false);
     setAlertaEmergenciaRelancado(true);
-    alert('Agendamento cancelado com sucesso. A corrida foi relançada com PRIORIDADE MÁXIMA para os outros motoristas!');
+    alert('Agendamento cancelado. A corrida foi relançada com PRIORIDADE MÁXIMA para os outros motoristas!');
   };
 
   const responderPesquisaFraude = (opcao) => {
     setRespostaFraude(opcao);
     if (opcao === 'sim_por_fora') {
-      setMultaAplicada(true);
       setSaldoCarteiraPassageiro(prev => prev + 5.00);
-      alert('Obrigado! Você recebeu R$ 5,00 de bônus na carteira. O motorista foi notificado e auditado.');
+      alert('Obrigado! Bônus de R$ 5,00 adicionado à carteira. O motorista foi auditado.');
     } else {
       alert('Obrigado pelas informações!');
     }
@@ -118,16 +135,16 @@ function App() {
       <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
-          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Segurança, "Indo para Casa", Trava Anti-Calote & Relançamento de Emergência</p>
+          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Foco Urbano & Teste Local (Atacarejo / Petrolata / Zani Carajás)</p>
         </div>
 
-        {modoApenasNacional ? (
-          <span style={{ backgroundColor: '#064e3b', color: '#6ee7b7', border: '1px solid #059669', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            🇧🇷 Trilha 100% Nacional (Sem Taxas Internacionais)
+        {modoApenasUrbanoAlagoinhas ? (
+          <span style={{ backgroundColor: '#0284c7', color: '#fff', border: '1px solid #0369a1', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+            📍 Trava Ativa: Modo Alagoinhas Urbano (Intermunicipais Ocultas)
           </span>
         ) : (
           <span style={{ backgroundColor: '#475569', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            🌐 Modo Híbrido Global
+            🌐 Operação Regional Expandida
           </span>
         )}
       </header>
@@ -141,7 +158,7 @@ function App() {
           🚘 Painel do Condutor & Rota de Retorno
         </button>
         <button onClick={() => setAbaAtiva('adm')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'adm' ? '#eab308' : '#1e293b', color: abaAtiva === 'adm' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          ⚙️ Painel ADM & Trava Nacional
+          ⚙️ Painel ADM & Trava de Escopo
         </button>
       </nav>
 
@@ -150,7 +167,7 @@ function App() {
         <div style={{ backgroundColor: '#7f1d1d', border: '2px solid #ef4444', padding: '15px', borderRadius: '10px', marginBottom: '20px', color: '#fff' }}>
           <h4 style={{ margin: 0, fontSize: '16px' }}>🚨 AVISO: CORRIDA RELANÇADA COM PRIORIDADE MÁXIMA</h4>
           <p style={{ margin: '5px 0 0 0', fontSize: '13px', color: '#fca5a5' }}>
-            O motorista anterior informou uma emergência. O agendamento para <strong>Santa Terezinha / Centro</strong> foi relançado com destaque para os demais motoristas da região!
+            O agendamento para <strong>Santa Terezinha / Centro</strong> foi relançado com prioridade!
           </p>
         </div>
       )}
@@ -160,7 +177,7 @@ function App() {
         <div style={{ backgroundColor: '#1e1b4b', border: '2px solid #6366f1', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Auditoria de Segurança Pós-Viagem</h4>
+              <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Checagem de Segurança Pós-Viagem</h4>
               <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
                 Sua corrida de madrugada para <strong>Santa Terezinha</strong> foi cancelada. O motorista realizou a viagem por fora do app?
               </p>
@@ -173,7 +190,7 @@ function App() {
               <button 
                 onClick={() => responderPesquisaFraude('sim_por_fora')}
                 style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
-                🚨 Sim, ele pediu para cancelar e fez por fora (+ R$ 5,00 Bônus)
+                🚨 Sim, ele fez por fora (+ R$ 5,00 Bônus)
               </button>
               <button 
                 onClick={() => responderPesquisaFraude('nao_realizada')}
@@ -183,7 +200,7 @@ function App() {
             </div>
           ) : (
             <div style={{ marginTop: '10px', color: '#22c55e', fontSize: '12px', fontWeight: 'bold' }}>
-              ✓ Resposta registrada com sucesso. Bônus creditado na sua carteira!
+              ✓ Bônus creditado na carteira!
             </div>
           )}
         </div>
@@ -197,9 +214,11 @@ function App() {
             <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
             
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>SELECIONE A LINHA / DESTINO</label>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
+                DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'FOCO URBANO / ALAGOINHAS' : 'TODOS OS DESTINOS'})
+              </label>
               <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
-                {rotas.map(r => (
+                {rotasExibidas.map(r => (
                   <option key={r.id} value={r.id}>{r.nome}</option>
                 ))}
               </select>
@@ -307,13 +326,7 @@ function App() {
         <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
           <h3 style={{ marginTop: 0, color: '#22c55e' }}>Painel do Condutor</h3>
 
-          {multaAplicada && (
-            <div style={{ backgroundColor: '#7f1d1d', border: '1px solid #ef4444', padding: '12px', borderRadius: '8px', marginBottom: '15px', color: '#fff', fontSize: '13px' }}>
-              ⚠ <strong>ALERTA DE INFRAÇÃO:</strong> Viagem identificada como realizada por fora. Taxa e multa debitadas do seu saldo.
-            </div>
-          )}
-
-          {/* MODO "INDO PARA CASA" RESTAURADO */}
+          {/* MODO "INDO PARA CASA" */}
           <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
               <div>
@@ -340,7 +353,6 @@ function App() {
                   <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
                   <option value="Aramari">Aramari</option>
                   <option value="Pedrão">Pedrão</option>
-                  <option value="Catu / Pojuca">Catu / Pojuca</option>
                   <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
                 </select>
               </div>
@@ -376,9 +388,9 @@ function App() {
             )}
           </div>
 
-          {/* AGENDAMENTO E BOTÃO DE IMPREVISTO/EMERGÊNCIA */}
+          {/* AGENDAMENTO E EMERGÊNCIA */}
           <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #334155' }}>
-            <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>📅 Seu Agendamento da Madrugada:</h4>
+            <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>📅 Agendamento da Madrugada (Atacarejo / Petrolata / Zani Carajás):</h4>
             
             {agendamentoAtivo ? (
               <div>
@@ -426,68 +438,55 @@ function App() {
           ) : (
             <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, color: '#eab308' }}>Painel ADM</h3>
+                <h3 style={{ margin: 0, color: '#eab308' }}>Painel ADM & Gestão de Escopo</h3>
                 <button onClick={() => setAutenticadoAdm(false)} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', cursor: 'pointer' }}>
                   Sair
                 </button>
               </div>
 
-              {/* CHAVE DE TRAVA NACIONAL */}
+              {/* TRAVA GEOGRÁFICA (MODO ALAGOINHAS URBAN) */}
               <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #38bdf8' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <h4 style={{ margin: 0, color: '#38bdf8' }}>🇧🇷 Modo Soberania Nacional (Pix / Carteira Local)</h4>
+                    <h4 style={{ margin: 0, color: '#38bdf8' }}>📍 Trava Geográfica: Modo Alagoinhas Urbano</h4>
                     <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
-                      Bloqueia taxas de intermediários globais e mantém a riqueza circulando na economia baiana.
+                      Bloqueia/Oculta linhas intermunicipais e restringe a operação para testes exaustivos no perímetro de Alagoinhas.
                     </p>
                   </div>
 
                   <button 
-                    onClick={() => setModoApenasNacional(!modoApenasNacional)}
-                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoApenasNacional ? '#22c55e' : '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                    {modoApenasNacional ? '✓ TRAVA NACIONAL ATIVA' : '🔓 MODO GLOBAL LIBERADO'}
+                    onClick={() => setModoApenasUrbanoAlagoinhas(!modoApenasUrbanoAlagoinhas)}
+                    style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoApenasUrbanoAlagoinhas ? '#0284c7' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                    {modoApenasUrbanoAlagoinhas ? '✓ TRAVA URBANA ATIVA' : '🔓 EXPANDIR PARA REGIONAL'}
                   </button>
                 </div>
               </div>
 
-              {/* AUDITORIA DE CANCELAMENTOS */}
-              <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #334155' }}>
-                <h4 style={{ margin: '0 0 10px 0', color: '#ef4444' }}>🚨 Auditoria Anti-Fraude (Viagens por Fora)</h4>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid #334155', color: '#94a3b8' }}>
-                      <th style={{ padding: '8px' }}>Motorista</th>
-                      <th style={{ padding: '8px' }}>Rota</th>
-                      <th style={{ padding: '8px' }}>Motivo</th>
-                      <th style={{ padding: '8px' }}>Auditoria Passageiro</th>
-                      <th style={{ padding: '8px' }}>Ação do Sistema</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr style={{ borderBottom: '1px solid #1e293b' }}>
-                      <td style={{ padding: '8px', fontWeight: 'bold' }}>Condutor #402</td>
-                      <td style={{ padding: '8px' }}>Corujão Santa Terezinha</td>
-                      <td style={{ padding: '8px', color: '#ef4444' }}>"Desistência"</td>
-                      <td style={{ padding: '8px', color: '#22c55e', fontWeight: 'bold' }}>Confirmou viagem por fora</td>
-                      <td style={{ padding: '8px', color: '#eab308' }}>Taxa cobrada + Multa de R$ 15,00</td>
-                    </tr>
-                  </tbody>
-                </table>
+              {/* FORMULÁRIO PARA CADASTRAR NOVAS ROTAS / EMPRESAS LOCAIS */}
+              <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '25px', border: '1px solid #334155' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: '#22c55e' }}>+ Cadastrar Novo Ponto de Empresa / Bairro em Alagoinhas</h4>
+                <form onSubmit={adicionarNovaRota} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
+                  <input type="text" placeholder="Ex: Atacarejo / Murilo Cavalcante" value={novaRota.nome} onChange={(e) => setNovaRota({ ...novaRota, nome: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="text" placeholder="Ponto de Embarque" value={novaRota.pontoEmbarque} onChange={(e) => setNovaRota({ ...novaRota, pontoEmbarque: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="number" step="0.5" placeholder="Tarifa Vaga (R$)" value={novaRota.tarifaColetivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaColetivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="number" step="1" placeholder="Carro Exclusivo (R$)" value={novaRota.tarifaExclusivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaExclusivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <button type="submit" style={{ padding: '8px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#22c55e', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>+ Cadastrar Rota</button>
+                </form>
               </div>
 
               {/* TABELA EDITÁVEL DE TARIFAS */}
-              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas Gerais</h4>
+              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas das Rotas Exibidas</h4>
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
                       <th style={{ padding: '10px' }}>Rota</th>
                       <th style={{ padding: '10px' }}>Vaga (R$)</th>
-                      <th style={{ padding: '10px' }}>Carro Fechado (R$)</th>
+                      <th style={{ padding: '10px' }}>Carro Exclusivo (R$)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rotas.map((r) => (
+                    {rotasExibidas.map((r) => (
                       <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
                         <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
                         <td style={{ padding: '10px' }}>
