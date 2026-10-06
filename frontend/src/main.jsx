@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import ReactDOM from 'react-dom/client';
 
 // Tabela base de Linhas e Rotas do Hub de Alagoinhas
 const ROTAS_ALAGOINHAS_INICIAL = [
@@ -88,7 +89,7 @@ export function App() {
   };
 
   const compartilharViagemWhatsApp = () => {
-    const texto = encodeURIComponent(`🛡️️ Estou em trânsito com a DE PASSAGEM!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
+    const texto = encodeURIComponent(`🛡 Estou em trânsito com a DE PASSAGEM!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
     window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
   };
 
@@ -100,8 +101,6 @@ export function App() {
 
   return (
     <div style={{ fontFamily: 'sans-serif', backgroundColor: '#0f172a', color: '#f8fafc', minHeight: '100vh', padding: '20px' }}>
-      
-      {/* Cabeçalho */}
       <header style={{ borderBottom: '2px solid #f97316', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h1 style={{ color: '#f97316', margin: 0, fontSize: '28px', fontWeight: '900', letterSpacing: '1px' }}>
@@ -123,7 +122,6 @@ export function App() {
         )}
       </header>
 
-      {/* Navegação */}
       <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
         <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#f97316' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           📱 Passageiro
@@ -145,7 +143,6 @@ export function App() {
         </div>
       )}
 
-      {/* ABA PASSAGEIRO */}
       {abaAtiva === 'passageiro' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
@@ -254,7 +251,6 @@ export function App() {
         </div>
       )}
 
-      {/* ABA PAINEL DO CONDUTOR */}
       {abaAtiva === 'motorista_painel' && (
         <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
           <h3 style={{ marginTop: 0, color: '#22c55e' }}>🚘 Painel do Condutor</h3>
@@ -336,7 +332,6 @@ export function App() {
         </div>
       )}
 
-      {/* ABA PAINEL ADM */}
       {abaAtiva === 'adm' && (
         <div>
           {!autenticadoAdm ? (
@@ -429,4 +424,15 @@ export function App() {
 }
 
 export default App;
+
+// RENDERIZAÇÃO AUTOMÁTICA DA APLICAÇÃO REACT
+const rootElement = document.getElementById('root');
+if (rootElement) {
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <App />
+    </React.StrictMode>
+  );
+}
 
