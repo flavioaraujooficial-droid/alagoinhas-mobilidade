@@ -1,46 +1,245 @@
 import React, { useState } from 'react';
-import { createRoot } from 'react-dom/client';
-import { Car, Wallet, Users, Clock, ShieldCheck, MapPin, Bell, Navigation, AlertTriangle } from 'lucide-react';
+import ReactDOM from 'react-dom/client';
 import './styles.css';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000';
-const bairros = ['Centro','Brisas do Catu','Urupiara','Céu Azul','Informa','Santa Terezinha','Petrolar','Mangalô','Boa União'];
+// Tabela base de Linhas e Rotas do Hub de Alagoinhas
+const ROTAS_ALAGOINHAS_INICIAL = [
+  // --- LIMITES URBANOS ---
+  { id: 1, nome: "Mangalô / Santa Terezinha ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.00, tarifaExclusivo: 18.00, detalheHorario: "A cada 10-15 min" },
+  { id: 2, nome: "Alagoinhas Velha / Praça Kennedy ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 18.00, detalheHorario: "A cada 10 min" },
+  { id: 3, nome: "Nova Brasília / FM ↔ Centro (Limite Urbano)", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 20.00, detalheHorario: "A cada 12 min" },
+  { id: 4, nome: "Urupiara / Barreiro / Teresópolis ↔ Centro", categoria: "Urbana", tipo: "Urbano / Bairro", tarifaColetivo: 4.50, tarifaExclusivo: 20.00, detalheHorario: "A cada 10 min" },
 
-function money(v){return new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(Number(v||0));}
-async function apiGet(path){const r=await fetch(`${API_BASE_URL}${path}`); if(!r.ok) throw new Error(`HTTP ${r.status}`); return r.json();}
-async function apiPost(path, params={}){const q=new URLSearchParams(params).toString(); const r=await fetch(`${API_BASE_URL}${path}${q?'?'+q:''}`,{method:'POST'}); if(!r.ok) throw new Error(await r.text()); return r.json();}
+  // --- DISTRITAIS RURAIS ---
+  { id: 5, nome: "Fazenda Catuzinho ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 4.50, tarifaExclusivo: 25.00, detalheHorario: "06:00 | 11:30 | 17:00" },
+  { id: 6, nome: "Boa União ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.50, tarifaExclusivo: 30.00, detalheHorario: "06:00 | 08:00 | 11:30 | 14:00 | 17:30" },
+  { id: 7, nome: "Estêvão ↔ Centro", categoria: "Distrital", tipo: "Povoado / Rural", tarifaColetivo: 5.00, tarifaExclusivo: 28.00, detalheHorario: "06:15 | 09:00 | 12:00 | 16:30 | 18:15" },
+  { id: 8, nome: "Riacho da Guia / Calu ↔ Transbordo", categoria: "Distrital", tipo: "Distrito / Rural", tarifaColetivo: 7.00, tarifaExclusivo: 45.00, detalheHorario: "05:30 | 11:30 | 16:30" },
 
-function fallbackPricing({distanceKm, occupants, originZone, destinationZone, goesBeyondCenter}){
-  const shared = Number(occupants) >= 4;
-  const multiplier = ['Céu Azul','Informa'].includes(originZone)||['Céu Azul','Informa'].includes(destinationZone)?1.3:['Brisas do Catu'].includes(originZone)||['Brisas do Catu'].includes(destinationZone)?1.1:1;
-  const base = shared ? 4.6 + Math.max(0, Number(distanceKm)-5)*0.65 + (goesBeyondCenter?Number(distanceKm)*0.45:0) : Math.max(12, Number(distanceKm)*2.8+5);
-  const raw = base * multiplier;
-  const rounded = raw <= 12 ? Math.round(raw/0.2)*0.2 : Math.round(raw/0.5)*0.5;
-  return {pricing_policy:'sem_dinamica', mode: shared?(multiplier>1?'shared_comfort':'lotacao_popular'):'solo', price_per_passenger: Math.round(rounded*100)/100, total_trip_price: Math.round(rounded*Number(occupants||1)*100)/100, occupants:Number(occupants||1), estimated_wait_minutes: Math.min(15,3+(shared?4:0)+(Number(distanceKm)>=10?3:0)), comfort_required: multiplier>1, matching_priority: multiplier>1?'comfort':shared?'cheapest':'fastest', fallback:true};
+  // --- INTERMUNICIPAIS REGIONAIS ---
+  { id: 9, nome: "Pedrão ↔ Alagoinhas (Eixo Feira)", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 9.00, tarifaExclusivo: 60.00, detalheHorario: "06:00 | 08:30 | 11:30 | 14:30 | 17:00" },
+  { id: 10, nome: "Aramari ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 6.00, tarifaExclusivo: 35.00, detalheHorario: "06:30 | 07:30 | 10:00 | 13:00 | 16:00 | 18:00" },
+  { id: 11, nome: "Catu / Pojuca ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 8.50, tarifaExclusivo: 55.00, detalheHorario: "05:40 | 07:00 | 09:30 | 12:30 | 15:30 | 17:40" },
+
+  // --- LITORAL NORTE ---
+  { id: 12, nome: "Porto de Sauípe / Subaúma ↔ Transbordo", categoria: "Litoral", tipo: "Litoral / Turismo", tarifaColetivo: 14.00, tarifaExclusivo: 120.00, detalheHorario: "06:00 | 10:30 | 14:00 | 17:00" }
+];
+
+function App() {
+  const [abaAtiva, setAbaAtiva] = useState('passageiro');
+  const [categoriaFiltro, setCategoriaFiltro] = useState('Todas');
+  const [idRotaSelecionada, setIdRotaSelecionada] = useState(5); // Padrão: Fazenda Catuzinho
+  const [modalidade, setModalidade] = useState('coletivo'); // 'coletivo' ou 'exclusivo'
+  
+  // Taxa de Intermediação Ajustável do App
+  const [taxaPlataforma, setTaxaPlataforma] = useState(10); 
+  
+  // Lista de rotas personalizáveis
+  const [rotas, setRotas] = useState(ROTAS_ALAGOINHAS_INICIAL);
+
+  const rotaSelecionada = rotas.find(r => r.id === Number(idRotaSelecionada)) || rotas[0];
+
+  // Cálculo da tarifa com base na modalidade escolhida
+  const tarifaBaseCalculada = modalidade === 'coletivo' ? rotaSelecionada.tarifaColetivo : rotaSelecionada.tarifaExclusivo;
+  
+  // Repasse do app
+  const valorDesconto = (tarifaBaseCalculada * taxaPlataforma) / 100;
+  const valorLiquidoMotorista = tarifaBaseCalculada - valorDesconto;
+
+  // Função para editar valor de tarifa aberto
+  const atualizarTarifa = (id, campo, novoValor) => {
+    const val = parseFloat(novoValor) || 0;
+    setRotas(rotas.map(r => r.id === id ? { ...r, [campo]: val } : r));
+  };
+
+  const rotasFiltradas = categoriaFiltro === 'Todas' 
+    ? rotas 
+    : rotas.filter(r => r.categoria === categoriaFiltro);
+
+  return (
+    <div style={{ fontFamily: 'sans-serif', backgroundColor: '#0f172a', color: '#f8fafc', minHeight: '100vh', padding: '20px' }}>
+      
+      {/* Cabeçalho */}
+      <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
+          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Gestão de Tarifas: Coletivo, Ligeirinho e Carro Exclusivo</p>
+        </div>
+        <span style={{ backgroundColor: '#0284c7', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
+          Tarifário Aberto
+        </span>
+      </header>
+
+      {/* Navegação */}
+      <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
+        <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'passageiro' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          Simulador & Modalidade
+        </button>
+        <button onClick={() => setAbaAtiva('rotas')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'rotas' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'rotas' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+          Quadro Geral & Edição de Tarifas
+        </button>
+      </nav>
+
+      {/* Conteúdo Consulta */}
+      {abaAtiva === 'passageiro' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+          
+          <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Selecione o Trajeto e Modalidade</h3>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>DESTINO / LINHA</label>
+              <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
+                {rotas.map(r => (
+                  <option key={r.id} value={r.id}>{r.nome} ({r.categoria})</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Alternador Coletivo vs Exclusivo */}
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => setModalidade('coletivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #38bdf8', backgroundColor: modalidade === 'coletivo' ? '#0284c7' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  👥 Compartilhado / Vaga
+                </button>
+                <button 
+                  onClick={() => setModalidade('exclusivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🚗 Carro Fechado (Particular)
+                </button>
+              </div>
+            </div>
+
+            {/* Exibição em Tempo Real */}
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: modalidade === 'coletivo' ? '4px solid #38bdf8' : '4px solid #eab308' }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#f8fafc' }}>{rotaSelecionada.nome}</h4>
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                <strong>Modalidade Escolhida:</strong> {modalidade === 'coletivo' ? 'Passagem Coletiva / Por Pessoa' : 'Carro Exclusivo / Fechado'}
+              </p>
+              <p style={{ margin: '8px 0 0 0', fontSize: '18px', color: '#22c55e', fontWeight: 'bold' }}>
+                Valor Final: R$ {tarifaBaseCalculada.toFixed(2)}
+              </p>
+            </div>
+
+          </div>
+
+          {/* Controle da Taxa e Repasse Líquido */}
+          <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Divisão e Retenção do App</h3>
+            
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#38bdf8', fontWeight: 'bold', fontSize: '14px', marginBottom: '10px' }}>
+                Taxa de Serviço da Plataforma: {taxaPlataforma}% (Ajustável)
+              </label>
+              <input 
+                type="range" 
+                min="0" 
+                max="20" 
+                step="0.5" 
+                value={taxaPlataforma} 
+                onChange={(e) => setTaxaPlataforma(Number(e.target.value))}
+                style={{ width: '100%', cursor: 'pointer' }} 
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#94a3b8', marginTop: '5px' }}>
+                <span>0% (Isento)</span>
+                <span>10% (Padrão)</span>
+                <span>20% (Teto)</span>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px' }}>
+              <p style={{ margin: '0 0 8px 0', color: '#94a3b8', fontSize: '13px' }}>Detalhamento Financeiro:</p>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px' }}>
+                <span>Valor Cobrado ao Passageiro:</span>
+                <strong style={{ color: '#fff' }}>R$ {tarifaBaseCalculada.toFixed(2)}</strong>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px', color: '#ef4444' }}>
+                <span>Retenção App ({taxaPlataforma}%):</span>
+                <strong>- R$ {valorDesconto.toFixed(2)}</strong>
+              </div>
+              <hr style={{ borderColor: '#334155', margin: '10px 0' }} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: '#22c55e' }}>
+                <span>Repasse Líquido ao Motorista:</span>
+                <strong>R$ {valorLiquidoMotorista.toFixed(2)}</strong>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      )}
+
+      {/* Tabela Editável de Tarifas */}
+      {abaAtiva === 'rotas' && (
+        <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', marginBottom: '15px' }}>
+            <h3 style={{ margin: 0 }}>Quadro de Tarifas Ajustáveis de Alagoinhas e Região</h3>
+            
+            {/* Filtros */}
+            <div style={{ display: 'flex', gap: '5px' }}>
+              {['Todas', 'Urbana', 'Distrital', 'Intermunicipal', 'Litoral'].map((cat) => (
+                <button 
+                  key={cat}
+                  onClick={() => setCategoriaFiltro(cat)}
+                  style={{ padding: '6px 12px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: categoriaFiltro === cat ? '#0284c7' : '#0f172a', color: '#fff', fontSize: '12px', cursor: 'pointer' }}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <p style={{ color: '#94a3b8', fontSize: '13px', marginTop: 0 }}>
+            * Você pode alterar os valores de <strong>Coletivo</strong> e <strong>Carro Particular Exclusivo</strong> diretamente nos campos abaixo.
+          </p>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
+                  <th style={{ padding: '10px' }}>Linha / Trajeto</th>
+                  <th style={{ padding: '10px' }}>Categoria</th>
+                  <th style={{ padding: '10px' }}>Tarifa Coletiva (R$)</th>
+                  <th style={{ padding: '10px' }}>Carro Exclusivo (R$)</th>
+                  <th style={{ padding: '10px' }}>Horários / Saída</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rotasFiltradas.map((r) => (
+                  <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
+                    <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
+                    <td style={{ padding: '10px', color: '#94a3b8' }}>{r.categoria}</td>
+                    <td style={{ padding: '10px' }}>
+                      <input 
+                        type="number" 
+                        step="0.50" 
+                        value={r.tarifaColetivo} 
+                        onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)}
+                        style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#22c55e', border: '1px solid #475569', fontWeight: 'bold' }} 
+                      />
+                    </td>
+                    <td style={{ padding: '10px' }}>
+                      <input 
+                        type="number" 
+                        step="1.00" 
+                        value={r.tarifaExclusivo} 
+                        onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)}
+                        style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
+                      />
+                    </td>
+                    <td style={{ padding: '10px', fontSize: '13px', color: '#94a3b8' }}>{r.detalheHorario}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
 }
 
-function Card({children, className=''}){return <div className={`card ${className}`}>{children}</div>}
-function Pill({children,type='default'}){return <span className={`pill ${type}`}>{children}</span>}
-function Button({children,onClick,kind='',disabled=false}){return <button className={`button ${kind}`} disabled={disabled} onClick={onClick}>{children}</button>}
-
-function Passageiro(){
-  const [origem,setOrigem]=useState('Brisas do Catu');
-  const [destino,setDestino]=useState('Centro');
-  const [distanceKm,setDistanceKm]=useState(7);
-  const [occupants,setOccupants]=useState(4);
-  const [goesBeyondCenter,setGoesBeyondCenter]=useState(false);
-  const [pricing,setPricing]=useState(()=>fallbackPricing({distanceKm,occupants,originZone:origem,destinationZone:destino,goesBeyondCenter}));
-  const [ride,setRide]=useState(null); const [match,setMatch]=useState(null); const [apiStatus,setApiStatus]=useState('fallback'); const [error,setError]=useState(''); const [loading,setLoading]=useState(false);
-  async function quote(){setLoading(true);setError('');try{const p=new URLSearchParams({distance_km:String(distanceKm),occupants:String(occupants),goes_beyond_center:String(goesBeyondCenter),origin_zone:origem,destination_zone:destino}); const data=await apiGet(`/pricing/city-ride?${p}`); setPricing(data); setApiStatus('online');}catch(e){setPricing(fallbackPricing({distanceKm,occupants,originZone:origem,destinationZone:destino,goesBeyondCenter}));setApiStatus('fallback');setError('API indisponível. Usando cálculo local.');}finally{setLoading(false)}}
-  async function createRide(){setLoading(true);setError('');setMatch(null);try{const data=await apiPost('/rides/create',{passenger_user_id:'passenger-demo',ride_type:Number(occupants)>=4?'shared_city':'solo',origin_neighborhood:origem,destination_neighborhood:destino,distance_km:String(distanceKm),occupants_expected:String(occupants),accepts_sharing:String(Number(occupants)>=2),goes_beyond_center:String(goesBeyondCenter)});setRide(data);setApiStatus('online');}catch(e){setRide({id:`local-${Date.now()}`,origin_neighborhood:origem,destination_neighborhood:destino,price_per_passenger:pricing.price_per_passenger,total_trip_price:pricing.total_trip_price,local:true});setApiStatus('fallback');setError('Corrida criada localmente. Suba o backend para persistir.');}finally{setLoading(false)}}
-  async function matchRide(){if(!ride?.id || String(ride.id).startsWith('local-')){setMatch({matched:false,reason:'Matching real exige corrida criada no backend.',estimated_wait_minutes:pricing.estimated_wait_minutes}); return;} setLoading(true);try{setMatch(await apiPost(`/rides/${ride.id}/match`));}catch(e){setMatch({matched:false,reason:'Nenhum motorista disponível ou backend indisponível.',estimated_wait_minutes:pricing.estimated_wait_minutes});}finally{setLoading(false)}}
-  return <div className="grid two-one"><Card><div className="row between"><h2><MapPin size={20}/> Passageiro</h2><Pill type={apiStatus==='online'?'success':'warning'}>{apiStatus==='online'?'API online':'Fallback'}</Pill></div><label>Origem</label><select value={origem} onChange={e=>setOrigem(e.target.value)}>{bairros.map(b=><option key={b}>{b}</option>)}</select><label>Destino</label><select value={destino} onChange={e=>setDestino(e.target.value)}>{bairros.map(b=><option key={b}>{b}</option>)}</select><label>Distância km</label><input type="number" value={distanceKm} onChange={e=>setDistanceKm(Number(e.target.value))}/><label>Pessoas</label><input type="number" min="1" max="7" value={occupants} onChange={e=>setOccupants(Number(e.target.value))}/><label className="check"><input type="checkbox" checked={goesBeyondCenter} onChange={e=>setGoesBeyondCenter(e.target.checked)}/> Vai além do centro</label><Button onClick={quote} disabled={loading}>Calcular valor</Button><Button kind="primary" onClick={createRide} disabled={loading}>Chamar De Passagem</Button><Button kind="outline" onClick={matchRide} disabled={!ride||loading}>Buscar motorista</Button>{error&&<div className="alert"><AlertTriangle size={16}/>{error}</div>}</Card><Card><div className="row between"><div><h2>Resumo da corrida</h2><p>Tarifa previsível, sem dinâmica.</p></div><Pill type="dark">{pricing.mode}</Pill></div><div className="stats"><div><Wallet/><span>Por passageiro</span><b>{money(pricing.price_per_passenger)}</b></div><div><Users/><span>Total</span><b>{money(pricing.total_trip_price)}</b></div><div><Clock/><span>Espera</span><b>{pricing.estimated_wait_minutes} min</b></div><div><ShieldCheck/><span>Política</span><b>Sem dinâmica</b></div></div><div className="split"><pre>{JSON.stringify(ride||{status:'ainda não criada'},null,2)}</pre><pre>{JSON.stringify(match||{status:'aguardando busca'},null,2)}</pre></div></Card></div>
-}
-
-function Motorista(){const [online,setOnline]=useState(true); const [ret,setRet]=useState(null); async function calc(){try{const d=await apiGet(`/pricing/return-fee?distance_km=10&app_online=${online}`); setRet(d.return_fee)}catch{setRet(online?4.5:0)}} return <div className="grid two-one"><Card><h2><Car size={20}/> Motorista</h2><div className="bigbox"><span>Status</span><b>{online?'Online':'Offline'}</b></div><Button kind={online?'danger':'primary'} onClick={()=>setOnline(!online)}>{online?'Ficar offline':'Ficar online'}</Button><Button onClick={calc}><Navigation size={16}/> Simular taxa de retorno</Button>{ret!==null&&<div className="ok">Taxa protegida: <b>{money(ret)}</b></div>}<p>Se desligar o app durante retorno protegido, perde a taxa e gera evento antifraude.</p></Card><Card><h2>Chamadas disponíveis</h2>{[['Brisas do Catu','Centro',7.5,'Shared Comfort'],['Petrolar','Centro',5.6,'Lotação popular'],['Escola Piloto Centro','Santa Terezinha',0,'Área Escolar']].map((r,i)=><div className="call" key={i}><div><b>{r[0]} → {r[1]}</b><span>{r[3]}</span></div>{r[2]>0&&<Pill type="success">{money(r[2])} por pax</Pill>}<Button>Aceitar</Button></div>)}</Card></div>}
-function Escolar(){return <div className="grid cards2">{[['João Pedro',3,'Aguardando dentro da escola'],['Ana Clara',8,'Motorista notificada']].map(a=><Card key={a[0]}><div className="row between"><h2><Bell size={20}/>{a[0]}</h2><Pill type={a[1]<=3?'success':'warning'}>{a[2]}</Pill></div><p>Escola Piloto Centro</p><p>Motorista: Carla Menezes</p><p>ETA: {a[1]} min</p><Button kind={a[1]<=3?'primary':''}>{a[1]<=3?'Liberar aluno':'Manter dentro da escola'}</Button></Card>)}</div>}
-function Admin(){const [out,setOut]=useState(null); async function tests(){try{setOut(await apiGet('/tests/rules'))}catch{setOut({error:'API indisponível'})}} async function foz(){try{setOut(await apiGet('/demo/foz'))}catch{setOut({error:'API indisponível'})}} async function seed(){try{setOut(await apiPost('/demo/seed-driver'))}catch{setOut({error:'API indisponível'})}} return <div className="grid two-one"><Card><h2>Admin Operacional</h2><Button onClick={tests}>Rodar testes</Button><Button onClick={seed}>Criar motorista demo</Button><Button onClick={foz}>Demo Foz</Button></Card><Card><h2>Saída da API</h2><pre>{JSON.stringify(out||{status:'aguardando ação'},null,2)}</pre></Card></div>}
-function Voz(){return <Card><h2>Atualização futura: voz</h2><p>A voz entra depois do piloto funcional como impacto emocional da marca.</p><div className="voice">“Olá, aqui é o De Passagem. Seu motorista está chegando. O ar-condicionado está agradável para você?”</div></Card>}
-function App(){const [tab,setTab]=useState('passageiro'); const tabs={passageiro:<Passageiro/>,motorista:<Motorista/>,escolar:<Escolar/>,admin:<Admin/>,voz:<Voz/>}; return <main><header><div><small>Operação de rua</small><h1>De Passagem</h1><p>Mobilidade compartilhada, tarifa sem dinâmica, área escolar e operação territorial.</p></div><div className="badges"><Pill type="success">Sem dinâmica</Pill><Pill>Até 7 lugares</Pill><Pill type="warning">Área Escolar</Pill></div></header><nav>{Object.keys(tabs).map(k=><button key={k} className={tab===k?'active':''} onClick={()=>setTab(k)}>{k}</button>)}</nav>{tabs[tab]}</main>}
-
-createRoot(document.getElementById('root')).render(<App/>);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
