@@ -20,7 +20,7 @@ const ROTAS_ALAGOINHAS_INICIAL = [
   { id: 10, nome: "Aramari ↔ Alagoinhas", categoria: "Intermunicipal", tipo: "Regional", tarifaColetivo: 6.00, tarifaExclusivo: 35.00, pontoEmbarque: "Terminal Central", vagasObrigatorias: 1, taxaRetornoVazio: 10.00 }
 ];
 
-function App() {
+export default function App() {
   const [abaAtiva, setAbaAtiva] = useState('passageiro');
   const [idRotaSelecionada, setIdRotaSelecionada] = useState(15);
   const [modalidade, setModalidade] = useState('coletivo');
@@ -34,7 +34,7 @@ function App() {
   const [destinoCasa, setDestinoCasa] = useState('Estêvão');
 
   // SEGURANÇA: CÓDIGO PIN & COMPARTILHAMENTO
-  const [codigoPinEmbarque] = useState('8421');
+  const [codigoPinEmbarque, setCodigoPinEmbarque] = useState('8421');
   const [pinDigitadoMotorista, setPinDigitadoMotorista] = useState('');
   const [corridaIniciadaSegura, setCorridaIniciadaSegura] = useState(false);
 
@@ -63,7 +63,7 @@ function App() {
     ? rotas.filter(r => r.categoria === "Urbana" || r.categoria === "Distrital" || r.categoria === "Madrugada")
     : rotas;
 
-  const rotaSelecionada = rotasExibidas.find(r => r.id === Number(idRotaSelecionada)) || rotasExibidas[0];
+  const rotaSelecionada = rotasExibidas.find(r => r.id === Number(idRotaSelecionada)) || rotasExibidas[0] || rotas[0];
 
   // CÁLCULOS
   const tarifaUnitaria = modalidade === 'coletivo' ? rotaSelecionada.tarifaColetivo : rotaSelecionada.tarifaExclusivo;
@@ -176,153 +176,115 @@ function App() {
         </div>
       )}
 
-     {/* CHECAGEM E BÔNUS PÓS-VIAGEM DESATIVADOS PARA EVITAR FRAUDES
-{mostrarPesquisaCancelamento && (
-  <div style={{ backgroundColor: '#1e1b4b', border: '2px solid #6366f1', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-      <div>
-        <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Checagem de Segurança Pós-Viagem</h4>
-        <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
-          Sua corrida de madrugada para <strong>Santa Terezinha</strong> foi cancelada. O motorista realizou a viagem por fora do app?
-        </p>
-      </div>
-      <button onClick={() => setMostrarPesquisaCancelamento(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
-    </div>
+      {/* 1. ABA PASSAGEIRO */}
+      {abaAtiva === 'passageiro' && (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+          
+          <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
+            
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
+                DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'OPERAÇÃO ALAGOINHAS' : 'TODOS OS DESTINOS'})
+              </label>
+              <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
+                {rotasExibidas.map(r => (
+                  <option key={r.id} value={r.id}>{r.nome}</option>
+                ))}
+              </select>
+            </div>
 
-    {!respostaFraude && (
-      <div style={{ marginTop: '12px', display: 'flex', gap: '10px' }}>
-        <button onClick={() => responderPesquisaFraude('sim_por_fora')} style={{ padding: '8px 14px', backgroundColor: '#ef4444', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Sim, fomos por fora
-        </button>
-        <button onClick={() => responderPesquisaFraude('nao_cancelada_real')} style={{ padding: '8px 14px', backgroundColor: '#334155', color: '#fff', border: 'none', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer' }}>
-          Não, a viagem não aconteceu
-        </button>
-      </div>
-    )}
-  </div>
-)}
-*/}
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => setModalidade('coletivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #f97316', backgroundColor: modalidade === 'coletivo' ? '#ea580c' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  👥 Assento / Vaga
+                </button>
+                <button 
+                  onClick={() => setModalidade('exclusivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🚗 Carro Exclusivo
+                </button>
+              </div>
+            </div>
 
-    {/* 1. ABA PASSAGEIRO */}
-{abaAtiva === 'passageiro' && (
-  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-    
-    <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-      <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
-      
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>
-          DESTINOS DISPONÍVEIS ({modoApenasUrbanoAlagoinhas ? 'OPERAÇÃO ALAGOINHAS' : 'TODOS OS DESTINOS'})
-        </label>
-        <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
-          {rotasExibidas.map(r => (
-            <option key={r.id} value={r.id}>{r.nome}</option>
-          ))}
-        </select>
-      </div>
+            {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
+            {modalidade === 'coletivo' && (
+              <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #f97316' }}>
+                <label style={{ display: 'block', color: '#f97316', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
+                  Quantas pessoas vão embarcar nesta parada?
+                </label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {[1, 2, 3, 4].map(num => (
+                    <button 
+                      key={num}
+                      onClick={() => setQtdPassageirosPonto(num)}
+                      style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#ea580c' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                      {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
-      <div style={{ marginBottom: '15px' }}>
-        <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
-        <div style={{ display: 'flex', gap: '10px' }}>
-          <button 
-            onClick={() => setModalidade('coletivo')}
-            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #f97316', backgroundColor: modalidade === 'coletivo' ? '#ea580c' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-            👥 Assento / Vaga
-          </button>
-          <button 
-            onClick={() => setModalidade('exclusivo')}
-            style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-            🚗 Carro Exclusivo
-          </button>
-        </div>
-      </div>
+            {/* BOTÃO PRINCIPAL DE CONFIRMAÇÃO DO PEDIDO DE VIAGEM */}
+            <button 
+              onClick={async () => {
+                try {
+                  const pinGerado = Math.floor(1000 + Math.random() * 9000).toString();
+                  setCodigoPinEmbarque(pinGerado);
 
-      {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
-      {modalidade === 'coletivo' && (
-        <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #f97316' }}>
-          <label style={{ display: 'block', color: '#f97316', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
-            Quantas pessoas vão embarcar nesta parada?
-          </label>
-          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-            {[1, 2, 3, 4].map(num => (
+                  if (typeof window !== 'undefined' && window.supabase) {
+                    await window.supabase
+                      .from('agendamentos_corridas')
+                      .insert([
+                        {
+                          rota: rotaSelecionada.nome || 'Rota Padrão Alagoinhas',
+                          modalidade: modalidade,
+                          pin_embarque: pinGerado,
+                          status: 'pendente',
+                          data_criacao: new Date().toISOString()
+                        }
+                      ]);
+                  }
+
+                  setAgendamentoAtivo(true);
+                  alert("✅ Solicitação enviada com sucesso! Seu motorista já pode visualizar o pedido.");
+                } catch (err) {
+                  console.error("Erro na confirmação:", err);
+                  alert("Solicitação registrada localmente! Aguardando confirmação do condutor.");
+                }
+              }}
+              style={{ 
+                width: '100%', 
+                padding: '14px', 
+                borderRadius: '8px', 
+                border: 'none', 
+                backgroundColor: '#22c55e', 
+                color: '#fff', 
+                fontSize: '16px',
+                fontWeight: 'bold', 
+                cursor: 'pointer', 
+                marginBottom: '15px',
+                boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+              }}>
+              ✅ CONFIRMAR SOLICITAÇÃO DE VIAGEM
+            </button>
+
+            {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
+              <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
+                {codigoPinEmbarque}
+              </div>
               <button 
-                key={num}
-                onClick={() => setQtdPassageirosPonto(num)}
-                style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#ea580c' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
+                onClick={compartilharViagemWhatsApp}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                📲 Compartilhar Rota em Tempo Real (WhatsApp)
               </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-     {/* 🚀 BOTÃO PRINCIPAL DE CONFIRMAÇÃO DO PEDIDO DE VIAGEM */}
-<button 
-  onClick={async () => {
-    try {
-      // 1. Gera ou recupera um PIN de 4 dígitos
-      const pinGerado = Math.floor(1000 + Math.random() * 9000).toString();
-      if (typeof setCodigoPinEmbarque === 'function') {
-        setCodigoPinEmbarque(pinGerado);
-      }
-
-      // 2. Envia a solicitação de corrida para o banco de dados Supabase
-      if (typeof supabase !== 'undefined') {
-        const { data, error } = await supabase
-          .from('agendamentos_corridas')
-          .insert([
-            {
-              rota: rotaSelecionada || 'Rota Padrão Alagoinhas',
-              modalidade: 'individual',
-              pin_embarque: pinGerado,
-              status: 'pendente',
-              data_criacao: new Date().toISOString()
-            }
-          ]);
-
-        if (error) {
-          console.error("Erro ao salvar no Supabase:", error);
-        }
-      }
-
-      // 3. Notifica o passageiro e ativa a visualização
-      if (typeof setAgendamentoAtivo === 'function') {
-        setAgendamentoAtivo(true);
-      }
-      alert("✅ Solicitação enviada com sucesso! Seu motorista já pode visualizar o pedido.");
-    } catch (err) {
-      console.error("Erro na confirmação:", err);
-      alert("Solicitação registrada localmente! Aguardando confirmação do condutor.");
-    }
-  }}
-  style={{ 
-    width: '100%', 
-    padding: '14px', 
-    borderRadius: '8px', 
-    border: 'none', 
-    backgroundColor: '#22c55e', 
-    color: '#fff', 
-    fontSize: '16px',
-    fontWeight: 'bold', 
-    cursor: 'pointer', 
-    marginBottom: '15px',
-    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
-  }}>
-  ✅ CONFIRMAR SOLICITAÇÃO DE VIAGEM
-</button>
-
-{/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
-<div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #f97316' }}>
-  <h4 style={{ margin: '0 0 5px 0', color: '#f97316' }}>🔑 Seu Código PIN de Embarque</h4>
-  <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
-    {codigoPinEmbarque}
-  </div>
-  <button 
-    onClick={compartilharViagemWhatsApp}
-    style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-    📲 Compartilhar Rota em Tempo Real (WhatsApp)
-  </button>
-</div>
+            </div>
 
             {/* Trava Anti-Calote */}
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: passageiroAprovado ? '4px solid #22c55e' : '4px solid #ef4444' }}>
@@ -373,67 +335,65 @@ function App() {
         </div>
       )}
 
-     {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
-{abaAtiva === 'motorista_painel' && (
-  <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-    <h3 style={{ marginTop: 0, color: '#22c55e' }}>🚘 Painel do Condutor</h3>
+      {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
+      {abaAtiva === 'motorista_painel' && (
+        <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
+          <h3 style={{ marginTop: 0, color: '#22c55e' }}>🚘 Painel do Condutor</h3>
 
-    {/* MODO "INDO PARA CASA" */}
-    <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-        <div>
-          <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Modo "Indo para Casa" (Rota Final de Retorno)</h4>
-          <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
-            {modoIndoParaCasa ? `Buscando passageiros no seu trajeto para: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
-          </p>
-        </div>
+          {/* MODO "INDO PARA CASA" */}
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Modo "Indo para Casa" (Rota Final de Retorno)</h4>
+                <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
+                  {modoIndoParaCasa ? `Buscando passageiros no seu trajeto para: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
+                </p>
+              </div>
 
-        <button 
-          onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
-          style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          {modoIndoParaCasa ? '✓ MODO RETORNO ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
-        </button>
-      </div>
+              <button 
+                onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                {modoIndoParaCasa ? '✓ MODO RETORNO ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
+              </button>
+            </div>
 
-      {modoIndoParaCasa && (
-        <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
-          <label style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
-          <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
-            <option value="Estêvão">Estêvão</option>
-            <option value="Boa União">Boa União</option>
-            <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
-            <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
-            <option value="Aramari">Aramari</option>
-            <option value="Pedrão">Pedrão</option>
-            <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
-          </select>
-        </div>
-      )}
-    </div>
-
-    {/* LISTA DE SOLICITAÇÕES PENDENTES EM TEMPO REAL */}
-    <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #3b82f6' }}>
-      <h4 style={{ margin: '0 0 15px 0', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        📡 Solicitações de Viagens em Alagoinhas (Tempo Real)
-      </h4>
-
-      <div style={{ backgroundColor: '#1e293b', padding: '15px', borderRadius: '8px', border: '1px solid #334155', marginBottom: '10px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-          <div>
-            <span style={{ fontSize: '11px', backgroundColor: '#22c55e', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>CARRO EXCLUSIVO</span>
-            <h5 style={{ margin: '8px 0 4px 0', fontSize: '16px', color: '#f8fafc' }}>Corrida Agendada / Solicitação Direta</h5>
-            <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>Aguardando confirmação do motorista parceiro</p>
+            {modoIndoParaCasa && (
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: '13px', color: '#f97316', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
+                <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
+                  <option value="Estêvão">Estêvão</option>
+                  <option value="Boa União">Boa União</option>
+                  <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
+                  <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
+                  <option value="Aramari">Aramari</option>
+                  <option value="Pedrão">Pedrão</option>
+                  <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
+                </select>
+              </div>
+            )}
           </div>
-          <button 
-            onClick={() => alert("✅ Corrida aceita com sucesso! Inicie o deslocamento para o ponto de embarque.")}
-            style={{ padding: '10px 18px', backgroundColor: '#22c55e', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
-            ACEITAR CORRIDA
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
+
+          {/* LISTA DE SOLICITAÇÕES PENDENTES EM TEMPO REAL */}
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #3b82f6', marginBottom: '20px' }}>
+            <h4 style={{ margin: '0 0 15px 0', color: '#60a5fa', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              📡 Solicitações de Viagens em Alagoinhas (Tempo Real)
+            </h4>
+
+            <div style={{ backgroundColor: '#1e293b', padding: '15px', borderRadius: '8px', border: '1px solid #334155' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                <div>
+                  <span style={{ fontSize: '11px', backgroundColor: '#22c55e', color: '#fff', padding: '2px 8px', borderRadius: '4px', fontWeight: 'bold' }}>CARRO EXCLUSIVO</span>
+                  <h5 style={{ margin: '8px 0 4px 0', fontSize: '16px', color: '#f8fafc' }}>{rotaSelecionada.nome}</h5>
+                  <p style={{ margin: 0, fontSize: '13px', color: '#94a3b8' }}>Aguardando confirmação do motorista parceiro</p>
+                </div>
+                <button 
+                  onClick={() => alert("✅ Corrida aceita com sucesso! Inicie o deslocamento para o ponto de embarque.")}
+                  style={{ padding: '10px 18px', backgroundColor: '#22c55e', color: '#fff', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: 'pointer' }}>
+                  ACEITAR CORRIDA
+                </button>
+              </div>
+            </div>
+          </div>
 
           {/* VALIDAÇÃO DE PIN NO EMBARQUE */}
           <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
@@ -542,46 +502,43 @@ function App() {
               <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '25px', border: '1px solid #334155' }}>
                 <h4 style={{ margin: '0 0 10px 0', color: '#22c55e' }}>+ Cadastrar Novo Ponto de Empresa / Bairro em Alagoinhas</h4>
                 <form onSubmit={adicionarNovaRota} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px' }}>
-                  <input type="text" placeholder="Ex: Atacarejo / Murilo Cavalcante" value={novaRota.nome} onChange={(e) => setNovaRota({ ...novaRota, nome: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="text" placeholder="Ponto de Embarque" value={novaRota.pontoEmbarque} onChange={(e) => setNovaRota({ ...novaRota, pontoEmbarque: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="number" step="0.5" placeholder="Tarifa Vaga (R$)" value={novaRota.tarifaColetivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaColetivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <input type="number" step="1" placeholder="Carro Exclusivo (R$)" value={novaRota.tarifaExclusivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaExclusivo: parseFloat(e.target.value) || 0 })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
-                  <button type="submit" style={{ padding: '8px 15px', borderRadius: '4px', border: 'none', backgroundColor: '#22c55e', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>+ Cadastrar Rota</button>
+                  <input type="text" placeholder="Nome Ex: Atacarejo / Murilo Cavalcante" value={novaRota.nome} onChange={(e) => setNovaRota({ ...novaRota, nome: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <select value={novaRota.categoria} onChange={(e) => setNovaRota({ ...novaRota, categoria: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }}>
+                    <option value="Urbana">Urbana</option>
+                    <option value="Distrital">Distrital</option>
+                    <option value="Intermunicipal">Intermunicipal</option>
+                  </select>
+                  <input type="number" placeholder="Tarifa Coletivo R$" value={novaRota.tarifaColetivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaColetivo: parseFloat(e.target.value) })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="number" placeholder="Tarifa Exclusivo R$" value={novaRota.tarifaExclusivo} onChange={(e) => setNovaRota({ ...novaRota, tarifaExclusivo: parseFloat(e.target.value) })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <input type="text" placeholder="Ponto Embarque" value={novaRota.pontoEmbarque} onChange={(e) => setNovaRota({ ...novaRota, pontoEmbarque: e.target.value })} style={{ padding: '8px', borderRadius: '4px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#fff' }} required />
+                  <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#22c55e', color: '#fff', border: 'none', borderRadius: '4px', fontWeight: 'bold', cursor: 'pointer', gridColumn: '1 / -1' }}>
+                    Adicionar Rota
+                  </button>
                 </form>
               </div>
 
-              {/* TABELA EDITÁVEL DE TARIFAS */}
-              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas das Rotas Exibidas</h4>
+              {/* LISTAGEM E EDIÇÃO RÁPIDA DE TARIFAS */}
+              <h4 style={{ margin: '0 0 10px 0', color: '#f8fafc' }}>Gestão de Tarifas do Hub</h4>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
                   <thead>
-                    <tr style={{ borderBottom: '2px solid #334155', color: '#f97316' }}>
-                      <th style={{ padding: '10px' }}>Rota</th>
-                      <th style={{ padding: '10px' }}>Vaga (R$)</th>
-                      <th style={{ padding: '10px' }}>Carro Exclusivo (R$)</th>
+                    <tr style={{ backgroundColor: '#0f172a', borderBottom: '1px solid #475569', color: '#cbd5e1' }}>
+                      <th style={{ padding: '8px' }}>Rota</th>
+                      <th style={{ padding: '8px' }}>Categoria</th>
+                      <th style={{ padding: '8px' }}>Coletivo (R$)</th>
+                      <th style={{ padding: '8px' }}>Exclusivo (R$)</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rotasExibidas.map((r) => (
+                    {rotas.map(r => (
                       <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
-                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
-                        <td style={{ padding: '10px' }}>
-                          <input 
-                            type="number" 
-                            step="0.50" 
-                            value={r.tarifaColetivo} 
-                            onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)}
-                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#22c55e', border: '1px solid #475569', fontWeight: 'bold' }} 
-                          />
+                        <td style={{ padding: '8px', color: '#f8fafc' }}>{r.nome}</td>
+                        <td style={{ padding: '8px', color: '#94a3b8' }}>{r.categoria}</td>
+                        <td style={{ padding: '8px' }}>
+                          <input type="number" step="0.5" value={r.tarifaColetivo} onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)} style={{ width: '70px', padding: '4px', backgroundColor: '#0f172a', border: '1px solid #475569', color: '#fff', borderRadius: '4px' }} />
                         </td>
-                        <td style={{ padding: '10px' }}>
-                          <input 
-                            type="number" 
-                            step="1.00" 
-                            value={r.tarifaExclusivo} 
-                            onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)}
-                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
-                          />
+                        <td style={{ padding: '8px' }}>
+                          <input type="number" step="1" value={r.tarifaExclusivo} onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)} style={{ width: '70px', padding: '4px', backgroundColor: '#0f172a', border: '1px solid #475569', color: '#fff', borderRadius: '4px' }} />
                         </td>
                       </tr>
                     ))}
@@ -594,9 +551,6 @@ function App() {
         </div>
       )}
 
-  
+    </div>
   );
 }
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
