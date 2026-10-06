@@ -23,13 +23,26 @@ function App() {
   const [modalidade, setModalidade] = useState('coletivo');
   const [qtdPassageirosPonto, setQtdPassageirosPonto] = useState(1);
   
-  // MODO SOBERANIA NACIONAL (BLOQUEIO DE RECURSOS GLOBAIS)
+  // SOBERANIA NACIONAL
   const [modoApenasNacional, setModoApenasNacional] = useState(true);
 
-  // SEGURANÇA & PIN
+  // MODO "INDO PARA CASA" (CONDUTOR)
+  const [modoIndoParaCasa, setModoIndoParaCasa] = useState(false);
+  const [destinoCasa, setDestinoCasa] = useState('Estêvão');
+
+  // SEGURANÇA: CÓDIGO PIN & COMPARTILHAMENTO
   const [codigoPinEmbarque] = useState('8421');
   const [pinDigitadoMotorista, setPinDigitadoMotorista] = useState('');
   const [corridaIniciadaSegura, setCorridaIniciadaSegura] = useState(false);
+
+  // AGENDAMENTO & EMERGÊNCIA
+  const [agendamentoAtivo, setAgendamentoAtivo] = useState(true);
+  const [alertaEmergenciaRelancado, setAlertaEmergenciaRelancado] = useState(false);
+
+  // AUDITORIA ANTI-FRAUDE (VIAGEM POR FORA)
+  const [mostrarPesquisaCancelamento, setMostrarPesquisaCancelamento] = useState(true);
+  const [respostaFraude, setRespostaFraude] = useState(null);
+  const [multaAplicada, setMultaAplicada] = useState(false);
 
   // AUTENTICAÇÃO ADM
   const [autenticadoAdm, setAutenticadoAdm] = useState(false);
@@ -37,8 +50,8 @@ function App() {
 
   // PARÂMETROS OPERACIONAIS
   const [taxaPlataforma, setTaxaPlataforma] = useState(10); 
-  const [reservaMinimaPassageiro] = useState(20.00); 
-  const [saldoCarteiraPassageiro] = useState(25.00); 
+  const [reservaMinimaPassageiro, setReservaMinimaPassageiro] = useState(20.00); 
+  const [saldoCarteiraPassageiro, setSaldoCarteiraPassageiro] = useState(25.00); 
 
   const [rotas, setRotas] = useState(ROTAS_ALAGOINHAS_INICIAL);
   const rotaSelecionada = rotas.find(r => r.id === Number(idRotaSelecionada)) || rotas[0];
@@ -51,6 +64,11 @@ function App() {
   const valorLiquidoMotorista = valorTotalPague - valorDescontoPlataforma;
 
   const passageiroAprovado = saldoCarteiraPassageiro >= reservaMinimaPassageiro;
+
+  const atualizarTarifa = (id, campo, novoValor) => {
+    const val = parseFloat(novoValor) || 0;
+    setRotas(rotas.map(r => r.id === id ? { ...r, [campo]: val } : r));
+  };
 
   const loginAdm = (e) => {
     e.preventDefault();
@@ -65,9 +83,31 @@ function App() {
     e.preventDefault();
     if (pinDigitadoMotorista === codigoPinEmbarque) {
       setCorridaIniciadaSegura(true);
-      alert('✓ CÓDIGO CONFIRMADO! Embarque liberado na Trilha Nacional.');
+      alert('✓ CÓDIGO CONFIRMADO! Passageiro e motorista autenticados com segurança. Boa viagem!');
     } else {
-      alert('❌ CÓDIGO INCORRETO! Solicite o PIN de 4 dígitos ao passageiro.');
+      alert('❌ CÓDIGO INCORRETO! Solicite o código PIN de 4 dígitos ao passageiro antes de iniciar.');
+    }
+  };
+
+  const compartilharViagemWhatsApp = () => {
+    const texto = encodeURIComponent(`🛡️ Estou em trânsito com a Alagoinhas Mobilidade!\nRota: ${rotaSelecionada.nome}\nMotorista Autenticado (PIN: ${codigoPinEmbarque})\nAcompanhe minha viagem em tempo real.`);
+    window.open(`https://api.whatsapp.com/send?text=${texto}`, '_blank');
+  };
+
+  const cancelarAgendamentoEmergencia = () => {
+    setAgendamentoAtivo(false);
+    setAlertaEmergenciaRelancado(true);
+    alert('Agendamento cancelado com sucesso. A corrida foi relançada com PRIORIDADE MÁXIMA para os outros motoristas!');
+  };
+
+  const responderPesquisaFraude = (opcao) => {
+    setRespostaFraude(opcao);
+    if (opcao === 'sim_por_fora') {
+      setMultaAplicada(true);
+      setSaldoCarteiraPassageiro(prev => prev + 5.00);
+      alert('Obrigado! Você recebeu R$ 5,00 de bônus na carteira. O motorista foi notificado e auditado.');
+    } else {
+      alert('Obrigado pelas informações!');
     }
   };
 
@@ -78,12 +118,12 @@ function App() {
       <header style={{ borderBottom: '1px solid #334155', paddingBottom: '15px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
         <div>
           <h1 style={{ color: '#38bdf8', margin: 0, fontSize: '24px' }}>Alagoinhas Mobilidade</h1>
-          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Ecossistema Regional de Pagamentos & Mobilidade Livre de Bandeiras Globais</p>
+          <p style={{ color: '#94a3b8', margin: '5px 0 0 0', fontSize: '14px' }}>Segurança, "Indo para Casa", Trava Anti-Calote & Relançamento de Emergência</p>
         </div>
 
         {modoApenasNacional ? (
           <span style={{ backgroundColor: '#064e3b', color: '#6ee7b7', border: '1px solid #059669', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
-            🇧🇷 Trilha 100% Nacional / Pix Ativa (Zero Visa/Master)
+            🇧🇷 Trilha 100% Nacional (Sem Taxas Internacionais)
           </span>
         ) : (
           <span style={{ backgroundColor: '#475569', padding: '6px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: 'bold' }}>
@@ -92,28 +132,72 @@ function App() {
         )}
       </header>
 
-      {/* Navegação */}
+      {/* Navegação de Abas */}
       <nav style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
         <button onClick={() => setAbaAtiva('passageiro')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'passageiro' ? '#38bdf8' : '#1e293b', color: abaAtiva === 'passageiro' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           📱 Passageiro
         </button>
         <button onClick={() => setAbaAtiva('motorista_painel')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'motorista_painel' ? '#22c55e' : '#1e293b', color: abaAtiva === 'motorista_painel' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-          🚘 Painel do Condutor
+          🚘 Painel do Condutor & Rota de Retorno
         </button>
         <button onClick={() => setAbaAtiva('adm')} style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: abaAtiva === 'adm' ? '#eab308' : '#1e293b', color: abaAtiva === 'adm' ? '#0f172a' : '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
           ⚙️ Painel ADM & Trava Nacional
         </button>
       </nav>
 
+      {/* ALERTA DE EMERGÊNCIA RELANÇADA */}
+      {alertaEmergenciaRelancado && (
+        <div style={{ backgroundColor: '#7f1d1d', border: '2px solid #ef4444', padding: '15px', borderRadius: '10px', marginBottom: '20px', color: '#fff' }}>
+          <h4 style={{ margin: 0, fontSize: '16px' }}>🚨 AVISO: CORRIDA RELANÇADA COM PRIORIDADE MÁXIMA</h4>
+          <p style={{ margin: '5px 0 0 0', fontSize: '13px', color: '#fca5a5' }}>
+            O motorista anterior informou uma emergência. O agendamento para <strong>Santa Terezinha / Centro</strong> foi relançado com destaque para os demais motoristas da região!
+          </p>
+        </div>
+      )}
+
+      {/* BANNER DE AUDITORIA DE CANCELAMENTO PÓS-VIAGEM */}
+      {mostrarPesquisaCancelamento && (
+        <div style={{ backgroundColor: '#1e1b4b', border: '2px solid #6366f1', padding: '15px', borderRadius: '12px', marginBottom: '20px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <h4 style={{ margin: '0 0 5px 0', color: '#a5b4fc' }}>🔎 Auditoria de Segurança Pós-Viagem</h4>
+              <p style={{ margin: 0, fontSize: '13px', color: '#cbd5e1' }}>
+                Sua corrida de madrugada para <strong>Santa Terezinha</strong> foi cancelada. O motorista realizou a viagem por fora do app?
+              </p>
+            </div>
+            <button onClick={() => setMostrarPesquisaCancelamento(false)} style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', fontWeight: 'bold' }}>✕</button>
+          </div>
+
+          {!respostaFraude ? (
+            <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button 
+                onClick={() => responderPesquisaFraude('sim_por_fora')}
+                style={{ padding: '8px 14px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                🚨 Sim, ele pediu para cancelar e fez por fora (+ R$ 5,00 Bônus)
+              </button>
+              <button 
+                onClick={() => responderPesquisaFraude('nao_realizada')}
+                style={{ padding: '8px 14px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: '#0f172a', color: '#fff', fontSize: '12px', cursor: 'pointer' }}>
+                Não, a viagem realmente não aconteceu
+              </button>
+            </div>
+          ) : (
+            <div style={{ marginTop: '10px', color: '#22c55e', fontSize: '12px', fontWeight: 'bold' }}>
+              ✓ Resposta registrada com sucesso. Bônus creditado na sua carteira!
+            </div>
+          )}
+        </div>
+      )}
+
       {/* 1. ABA PASSAGEIRO */}
       {abaAtiva === 'passageiro' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
           
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Seleção de Rota</h3>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>1. Agendamento & Seleção de Rota</h3>
             
             <div style={{ marginBottom: '15px' }}>
-              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>DESTINO / ROTA REGIONAL</label>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>SELECIONE A LINHA / DESTINO</label>
               <select value={idRotaSelecionada} onChange={(e) => setIdRotaSelecionada(e.target.value)} style={{ width: '100%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', border: '1px solid #475569' }}>
                 {rotas.map(r => (
                   <option key={r.id} value={r.id}>{r.nome}</option>
@@ -121,33 +205,86 @@ function App() {
               </select>
             </div>
 
-            {/* MEIOS DE PAGAMENTO PERMITIDOS */}
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #38bdf8' }}>
-              <h4 style={{ margin: '0 0 5px 0', color: '#38bdf8' }}>💳 Forma de Pagamento Habilitada</h4>
-              {modoApenasNacional ? (
-                <div style={{ fontSize: '13px', color: '#6ee7b7', fontWeight: 'bold' }}>
-                  ✓ Pix Direto / Carteira Digital Nacional (Sem intermediários estrangeiros)
-                </div>
-              ) : (
-                <div style={{ fontSize: '13px', color: '#94a3b8' }}>
-                  Cartão de Crédito / Débito / Pix
-                </div>
-              )}
+            <div style={{ marginBottom: '15px' }}>
+              <label style={{ display: 'block', color: '#94a3b8', fontSize: '12px', marginBottom: '5px' }}>TIPO DE EMBARQUE</label>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => setModalidade('coletivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #38bdf8', backgroundColor: modalidade === 'coletivo' ? '#0284c7' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  👥 Assento / Vaga
+                </button>
+                <button 
+                  onClick={() => setModalidade('exclusivo')}
+                  style={{ flex: 1, padding: '10px', borderRadius: '6px', border: '1px solid #eab308', backgroundColor: modalidade === 'exclusivo' ? '#ca8a04' : '#0f172a', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                  🚗 Carro Exclusivo
+                </button>
+              </div>
             </div>
 
-            {/* CARD PIN */}
-            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', border: '1px solid #22c55e' }}>
-              <h4 style={{ margin: '0 0 5px 0', color: '#22c55e' }}>🔑 PIN de Embarque: {codigoPinEmbarque}</h4>
-              <p style={{ margin: 0, fontSize: '12px', color: '#cbd5e1' }}>Informe ao condutor ao entrar no veículo.</p>
+            {/* SELETOR DE QUANTIDADE DE PASSAGEIROS POR PARADA */}
+            {modalidade === 'coletivo' && (
+              <div style={{ marginBottom: '15px', backgroundColor: '#0f172a', padding: '12px', borderRadius: '8px', border: '1px solid #38bdf8' }}>
+                <label style={{ display: 'block', color: '#38bdf8', fontSize: '13px', fontWeight: 'bold', marginBottom: '5px' }}>
+                  Quantas pessoas vão embarcar nesta parada?
+                </label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  {[1, 2, 3, 4].map(num => (
+                    <button 
+                      key={num}
+                      onClick={() => setQtdPassageirosPonto(num)}
+                      style={{ padding: '8px 16px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: qtdPassageirosPonto === num ? '#0284c7' : '#1e293b', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                      {num} {num === 1 ? 'Pessoa' : 'Pessoas'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CARD DE PIN DE SEGURANÇA E COMPARTILHAMENTO */}
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '10px', marginBottom: '15px', border: '1px solid #38bdf8' }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#38bdf8' }}>🔑 Seu Código PIN de Embarque</h4>
+              <div style={{ fontSize: '26px', fontWeight: 'bold', letterSpacing: '4px', color: '#22c55e', backgroundColor: '#1e293b', padding: '8px 15px', borderRadius: '8px', display: 'inline-block', marginBottom: '10px' }}>
+                {codigoPinEmbarque}
+              </div>
+              <button 
+                onClick={compartilharViagemWhatsApp}
+                style={{ width: '100%', padding: '10px', borderRadius: '6px', border: 'none', backgroundColor: '#25d366', color: '#fff', fontWeight: 'bold', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+                📲 Compartilhar Rota em Tempo Real (WhatsApp)
+              </button>
+            </div>
+
+            {/* Trava Anti-Calote */}
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', borderLeft: passageiroAprovado ? '4px solid #22c55e' : '4px solid #ef4444' }}>
+              <h4 style={{ margin: '0 0 5px 0', color: '#f8fafc' }}>Status da Carteira</h4>
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#cbd5e1' }}>
+                Saldo em Conta: <strong>R$ {saldoCarteiraPassageiro.toFixed(2)}</strong> | Reserva Mínima: <strong>R$ {reservaMinimaPassageiro.toFixed(2)}</strong>
+              </p>
+              
+              {passageiroAprovado ? (
+                <div style={{ marginTop: '8px', padding: '6px', backgroundColor: '#064e3b', color: '#6ee7b7', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                  ✓ SOLICITAÇÃO AUTORIZADA COM GARANTIA
+                </div>
+              ) : (
+                <div style={{ marginTop: '8px', padding: '6px', backgroundColor: '#7f1d1d', color: '#fca5a5', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' }}>
+                  ⚠️ SALDO INSUFICIENTE NA RESERVA
+                </div>
+              )}
             </div>
 
           </div>
 
           <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
-            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Repasse Transparente</h3>
+            <h3 style={{ marginTop: 0, color: '#f1f5f9' }}>2. Detalhamento Financeiro</h3>
+            
+            <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
+              <p style={{ margin: '0 0 5px 0', color: '#38bdf8', fontWeight: 'bold' }}>{rotaSelecionada.nome}</p>
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#94a3b8' }}>📍 <strong>Ponto de Coleta:</strong> {rotaSelecionada.pontoEmbarque}</p>
+              <p style={{ margin: '3px 0', fontSize: '13px', color: '#cbd5e1' }}>👥 <strong>Embarque:</strong> {modalidade === 'coletivo' ? `${qtdPassageirosPonto} pessoa(s)` : 'Carro Exclusivo'}</p>
+            </div>
+
             <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px' }}>
-                <span>Valor Total da Corrida:</span>
+                <span>Valor Total da Parada:</span>
                 <strong style={{ color: '#fff' }}>R$ {valorTotalPague.toFixed(2)}</strong>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px', fontSize: '14px', color: '#ef4444' }}>
@@ -156,7 +293,7 @@ function App() {
               </div>
               <hr style={{ borderColor: '#334155', margin: '10px 0' }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '16px', color: '#22c55e' }}>
-                <span>Líquido ao Condutor:</span>
+                <span>Líquido do Motorista:</span>
                 <strong>R$ {valorLiquidoMotorista.toFixed(2)}</strong>
               </div>
             </div>
@@ -165,33 +302,104 @@ function App() {
         </div>
       )}
 
-      {/* 2. ABA CONDUTOR */}
+      {/* 2. ABA PAINEL DO CONDUTOR / MODO INDO PARA CASA */}
       {abaAtiva === 'motorista_painel' && (
         <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px', border: '1px solid #334155' }}>
           <h3 style={{ marginTop: 0, color: '#22c55e' }}>Painel do Condutor</h3>
-          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #334155' }}>
-            <h4 style={{ margin: '0 0 8px 0', color: '#eab308' }}>🔑 Iniciar Viagem com PIN</h4>
+
+          {multaAplicada && (
+            <div style={{ backgroundColor: '#7f1d1d', border: '1px solid #ef4444', padding: '12px', borderRadius: '8px', marginBottom: '15px', color: '#fff', fontSize: '13px' }}>
+              ⚠ <strong>ALERTA DE INFRAÇÃO:</strong> Viagem identificada como realizada por fora. Taxa e multa debitadas do seu saldo.
+            </div>
+          )}
+
+          {/* MODO "INDO PARA CASA" RESTAURADO */}
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
+              <div>
+                <h4 style={{ margin: 0, color: '#f8fafc' }}>🏠 Modo "Indo para Casa" (Rota Final de Retorno)</h4>
+                <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
+                  {modoIndoParaCasa ? `Buscando passageiros no seu trajeto para: ${destinoCasa}` : 'Modo padrão ativo (Atendendo todas as áreas de Alagoinhas)'}
+                </p>
+              </div>
+
+              <button 
+                onClick={() => setModoIndoParaCasa(!modoIndoParaCasa)}
+                style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoIndoParaCasa ? '#22c55e' : '#475569', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
+                {modoIndoParaCasa ? '✓ MODO RETORNO ATIVO' : 'ATIVAR MODO "INDO PARA CASA"'}
+              </button>
+            </div>
+
+            {modoIndoParaCasa && (
+              <div style={{ marginTop: '15px', paddingTop: '15px', borderTop: '1px solid #334155', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
+                <label style={{ fontSize: '13px', color: '#38bdf8', fontWeight: 'bold' }}>SELECIONE SEU DISTRITO / POVOADO DE RESIDÊNCIA:</label>
+                <select value={destinoCasa} onChange={(e) => setDestinoCasa(e.target.value)} style={{ padding: '8px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#fff', border: '1px solid #475569', fontWeight: 'bold' }}>
+                  <option value="Estêvão">Estêvão</option>
+                  <option value="Boa União">Boa União</option>
+                  <option value="Fazenda Catuzinho">Fazenda Catuzinho</option>
+                  <option value="Riacho da Guia / Calu">Riacho da Guia / Calu</option>
+                  <option value="Aramari">Aramari</option>
+                  <option value="Pedrão">Pedrão</option>
+                  <option value="Catu / Pojuca">Catu / Pojuca</option>
+                  <option value="Santa Terezinha / Mangalô">Santa Terezinha / Mangalô</option>
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* VALIDAÇÃO DE PIN NO EMBARQUE */}
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #334155' }}>
+            <h4 style={{ margin: '0 0 8px 0', color: '#eab308' }}>🔑 Validar PIN de Embarque do Passageiro</h4>
+            <p style={{ margin: '0 0 12px 0', fontSize: '13px', color: '#94a3b8' }}>
+              Solicite o código de 4 dígitos ao passageiro para autorizar a partida:
+            </p>
+
             {!corridaIniciadaSegura ? (
-              <form onSubmit={validarPinMotorista} style={{ display: 'flex', gap: '10px' }}>
+              <form onSubmit={validarPinMotorista} style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                 <input 
                   type="text" 
                   maxLength="4" 
                   placeholder="Ex: 8421" 
                   value={pinDigitadoMotorista}
                   onChange={(e) => setPinDigitadoMotorista(e.target.value)}
-                  style={{ padding: '10px', borderRadius: '6px', backgroundColor: '#1e293b', color: '#22c55e', fontSize: '18px', fontWeight: 'bold', width: '120px', textAlign: 'center' }}
+                  style={{ padding: '10px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: '#1e293b', color: '#22c55e', fontSize: '18px', fontWeight: 'bold', width: '120px', textAlign: 'center' }}
                   required 
                 />
                 <button type="submit" style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', backgroundColor: '#22c55e', color: '#0f172a', fontWeight: 'bold', cursor: 'pointer' }}>
-                  ✓ Iniciar
+                  ✓ Confirmar PIN & Iniciar
                 </button>
               </form>
             ) : (
-              <div style={{ padding: '12px', backgroundColor: '#064e3b', color: '#6ee7b7', borderRadius: '6px', fontWeight: 'bold' }}>
+              <div style={{ padding: '12px', backgroundColor: '#064e3b', color: '#6ee7b7', borderRadius: '6px', fontWeight: 'bold', fontSize: '14px' }}>
                 ✓ VIAGEM AUTENTICADA COM SUCESSO.
               </div>
             )}
           </div>
+
+          {/* AGENDAMENTO E BOTÃO DE IMPREVISTO/EMERGÊNCIA */}
+          <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', border: '1px solid #334155' }}>
+            <h4 style={{ margin: '0 0 10px 0', color: '#38bdf8' }}>📅 Seu Agendamento da Madrugada:</h4>
+            
+            {agendamentoAtivo ? (
+              <div>
+                <div style={{ backgroundColor: '#1e293b', padding: '12px', borderRadius: '8px', marginBottom: '12px', borderLeft: '4px solid #22c55e' }}>
+                  <p style={{ margin: '3px 0', fontSize: '13px', fontWeight: 'bold' }}>Rota: Santa Terezinha / Mangalô ↔ Centro (04:30 AM)</p>
+                  <p style={{ margin: '3px 0', fontSize: '12px', color: '#22c55e', fontWeight: 'bold' }}>💰 Faturamento Garantido: R$ 21,00 (Reserva Ativa)</p>
+                </div>
+
+                <button 
+                  onClick={cancelarAgendamentoEmergencia}
+                  style={{ padding: '8px 16px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: '12px' }}>
+                  🚨 Informar Emergência & Relançar Corrida Prioritária
+                </button>
+              </div>
+            ) : (
+              <div style={{ color: '#94a3b8', fontSize: '13px' }}>
+                Nenhum agendamento pendente. Você está livre para novas chamadas.
+              </div>
+            )}
+          </div>
+
         </div>
       )}
 
@@ -207,7 +415,7 @@ function App() {
                   placeholder="Senha ADM (padrão: 1234)" 
                   value={senhaInput} 
                   onChange={(e) => setSenhaInput(e.target.value)}
-                  style={{ width: '80%', padding: '10px', borderRadius: '6px', backgroundColor: '#0f172a', color: '#fff', marginBottom: '15px', textAlign: 'center' }}
+                  style={{ width: '80%', padding: '10px', borderRadius: '6px', border: '1px solid #475569', backgroundColor: '#0f172a', color: '#fff', marginBottom: '15px', textAlign: 'center' }}
                 />
                 <br />
                 <button type="submit" style={{ padding: '10px 20px', borderRadius: '6px', border: 'none', backgroundColor: '#eab308', color: '#0f172a', fontWeight: 'bold', cursor: 'pointer' }}>
@@ -218,28 +426,92 @@ function App() {
           ) : (
             <div style={{ backgroundColor: '#1e293b', padding: '20px', borderRadius: '12px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, color: '#eab308' }}>Painel do Administrador & Arquitetura Soberana</h3>
+                <h3 style={{ margin: 0, color: '#eab308' }}>Painel ADM</h3>
                 <button onClick={() => setAutenticadoAdm(false)} style={{ padding: '6px 12px', borderRadius: '6px', border: 'none', backgroundColor: '#ef4444', color: '#fff', cursor: 'pointer' }}>
                   Sair
                 </button>
               </div>
 
-              {/* CHAVE DE BLOQUEIO DE BANDEIRAS E FUNÇÕES GLOBAIS */}
+              {/* CHAVE DE TRAVA NACIONAL */}
               <div style={{ backgroundColor: '#0f172a', padding: '20px', borderRadius: '10px', marginBottom: '20px', border: '1px solid #38bdf8' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
                   <div>
-                    <h4 style={{ margin: 0, color: '#38bdf8' }}>🇧🇷 Modo Soberania Nacional & Circulação Local</h4>
+                    <h4 style={{ margin: 0, color: '#38bdf8' }}>🇧🇷 Modo Soberania Nacional (Pix / Carteira Local)</h4>
                     <p style={{ margin: '5px 0 0 0', color: '#94a3b8', fontSize: '13px' }}>
-                      Bloqueia cartões internacionais (Visa/Mastercard) e opera unicamente via Pix/BaaS Nacional em Alagoinhas.
+                      Bloqueia taxas de intermediários globais e mantém a riqueza circulando na economia baiana.
                     </p>
                   </div>
 
                   <button 
                     onClick={() => setModoApenasNacional(!modoApenasNacional)}
                     style={{ padding: '10px 20px', borderRadius: '8px', border: 'none', backgroundColor: modoApenasNacional ? '#22c55e' : '#ef4444', color: '#fff', fontWeight: 'bold', cursor: 'pointer' }}>
-                    {modoApenasNacional ? '✓ TRAVA NACIONAL ATIVA' : '🔓 BANDEIRAS GLOBAIS LIBERADAS'}
+                    {modoApenasNacional ? '✓ TRAVA NACIONAL ATIVA' : '🔓 MODO GLOBAL LIBERADO'}
                   </button>
                 </div>
+              </div>
+
+              {/* AUDITORIA DE CANCELAMENTOS */}
+              <div style={{ backgroundColor: '#0f172a', padding: '15px', borderRadius: '8px', marginBottom: '20px', border: '1px solid #334155' }}>
+                <h4 style={{ margin: '0 0 10px 0', color: '#ef4444' }}>🚨 Auditoria Anti-Fraude (Viagens por Fora)</h4>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid #334155', color: '#94a3b8' }}>
+                      <th style={{ padding: '8px' }}>Motorista</th>
+                      <th style={{ padding: '8px' }}>Rota</th>
+                      <th style={{ padding: '8px' }}>Motivo</th>
+                      <th style={{ padding: '8px' }}>Auditoria Passageiro</th>
+                      <th style={{ padding: '8px' }}>Ação do Sistema</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr style={{ borderBottom: '1px solid #1e293b' }}>
+                      <td style={{ padding: '8px', fontWeight: 'bold' }}>Condutor #402</td>
+                      <td style={{ padding: '8px' }}>Corujão Santa Terezinha</td>
+                      <td style={{ padding: '8px', color: '#ef4444' }}>"Desistência"</td>
+                      <td style={{ padding: '8px', color: '#22c55e', fontWeight: 'bold' }}>Confirmou viagem por fora</td>
+                      <td style={{ padding: '8px', color: '#eab308' }}>Taxa cobrada + Multa de R$ 15,00</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              {/* TABELA EDITÁVEL DE TARIFAS */}
+              <h4 style={{ color: '#f1f5f9', marginBottom: '10px' }}>Editar Tarifas Gerais</h4>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #334155', color: '#38bdf8' }}>
+                      <th style={{ padding: '10px' }}>Rota</th>
+                      <th style={{ padding: '10px' }}>Vaga (R$)</th>
+                      <th style={{ padding: '10px' }}>Carro Fechado (R$)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rotas.map((r) => (
+                      <tr key={r.id} style={{ borderBottom: '1px solid #334155' }}>
+                        <td style={{ padding: '10px', fontWeight: 'bold' }}>{r.nome}</td>
+                        <td style={{ padding: '10px' }}>
+                          <input 
+                            type="number" 
+                            step="0.50" 
+                            value={r.tarifaColetivo} 
+                            onChange={(e) => atualizarTarifa(r.id, 'tarifaColetivo', e.target.value)}
+                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#22c55e', border: '1px solid #475569', fontWeight: 'bold' }} 
+                          />
+                        </td>
+                        <td style={{ padding: '10px' }}>
+                          <input 
+                            type="number" 
+                            step="1.00" 
+                            value={r.tarifaExclusivo} 
+                            onChange={(e) => atualizarTarifa(r.id, 'tarifaExclusivo', e.target.value)}
+                            style={{ width: '80px', padding: '6px', borderRadius: '4px', backgroundColor: '#0f172a', color: '#eab308', border: '1px solid #475569', fontWeight: 'bold' }} 
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
             </div>
